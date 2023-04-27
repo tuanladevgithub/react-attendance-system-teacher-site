@@ -1,9 +1,8 @@
 import Image from "next/image";
-
 import * as qrcode from "qrcode";
 import { useEffect, useState } from "react";
 
-export default function QRCode() {
+const QRCode = () => {
   const [countDown, setCountDown] = useState<number>(15);
   const [qrData, setQRData] = useState<string>(
     `https://link-to-attendance.vn/${new Date().getTime()}`
@@ -44,4 +43,6 @@ export default function QRCode() {
       </div>
     </div>
   );
-}
+};
+
+export default QRCode;
