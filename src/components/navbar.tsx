@@ -9,6 +9,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
+import logoImg from "../../public/logo.svg";
+
 const menus = [
   { name: "Dashboard", href: "#", current: true },
   { name: "My courses", href: "/course/qrcode", current: false },
@@ -42,17 +44,17 @@ export default function Example() {
                 <div className="flex flex-shrink-0 items-center">
                   <Image
                     className="block h-8 w-auto lg:hidden"
-                    src="/Logo_HUST.svg"
+                    src={logoImg}
                     alt="Logo"
-                    width={32}
-                    height={32}
+                    // width={32}
+                    // height={32}
                   />
                   <Image
                     className="hidden h-8 w-auto lg:block"
-                    src="/Logo_HUST.svg"
+                    src={logoImg}
                     alt="Logo"
-                    width={32}
-                    height={32}
+                    // width={32}
+                    // height={32}
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
