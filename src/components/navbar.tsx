@@ -9,11 +9,11 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-const navigation = [
+const menus = [
   { name: "Dashboard", href: "#", current: true },
   { name: "My courses", href: "/course/qrcode", current: false },
   { name: "Settings", href: "#", current: false },
-  { name: "Contact", href: "#", current: false },
+  // { name: "Contact", href: "#", current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -57,7 +57,7 @@ export default function Example() {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
+                    {menus.map((item) => (
                       <Link
                         key={item.name}
                         href={item.href}
@@ -127,7 +127,7 @@ export default function Example() {
                               "block px-4 py-2 text-sm text-gray-700"
                             )}
                           >
-                            Your Profile
+                            Profile
                           </a>
                         )}
                       </Menu.Item>
@@ -166,7 +166,7 @@ export default function Example() {
 
           <Disclosure.Panel className="sm:hidden">
             <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
+              {menus.map((item) => (
                 <Disclosure.Button
                   key={item.name}
                   as="a"

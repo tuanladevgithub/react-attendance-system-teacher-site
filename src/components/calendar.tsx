@@ -68,10 +68,10 @@ function Calendar() {
             <table className="w-full">
               <thead>
                 <tr>
-                  {dayTitles.map((day, idx) => {
+                  {dayTitles.map((day) => {
                     return (
                       <th
-                        key={idx}
+                        key={day}
                         className="p-2 border-r h-10 xl:w-40 lg:w-30 md:w-30 sm:w-20 w-10 xl:text-sm text-xs"
                       >
                         <span className="xl:block lg:block md:block sm:block hidden">
@@ -86,13 +86,16 @@ function Calendar() {
                 </tr>
               </thead>
               <tbody>
-                {listWeeks.map((week, idx) => {
+                {listWeeks.map((week) => {
                   return (
-                    <tr key={idx} className="text-center h-20">
-                      {week.map((day, idx) => {
+                    <tr
+                      key={`${week[0].getTime()}-${week[1].getTime()}`}
+                      className="text-center h-20"
+                    >
+                      {week.map((day) => {
                         return (
                           <td
-                            key={idx}
+                            key={day.getTime()}
                             className={`border ${
                               !isSameMonth(day, firstDayOfMonth)
                                 ? "bg-gray-100"
