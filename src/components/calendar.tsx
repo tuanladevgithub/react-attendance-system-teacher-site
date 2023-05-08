@@ -115,10 +115,10 @@ function Calendar() {
                                 </div>
                               </div>
                               <div className="bottom flex-grow h-30 py-1 w-full cursor-pointer">
-                                <div className="event bg-purple-400 text-white rounded p-1 text-sm mb-1">
+                                {/* <div className="event bg-purple-400 text-white rounded p-1 text-sm mb-1">
                                   <span className="event-name"> Meeting </span>
                                   <span className="time"> 12:00~14:00 </span>
-                                </div>
+                                </div> */}
                               </div>
                             </div>
                           </td>
