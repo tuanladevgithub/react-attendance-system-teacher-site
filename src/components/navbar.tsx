@@ -10,19 +10,25 @@ import Image from "next/image";
 import Link from "next/link";
 
 import logoImg from "../../public/logo.svg";
-
-const menus = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "My courses", href: "/course/qrcode", current: false },
-  { name: "Settings", href: "#", current: false },
-  // { name: "Contact", href: "#", current: false },
-];
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Example() {
+  const router = useRouter();
+
+  const menus = [
+    { title: "Dashboard", href: "/", current: router.pathname === "/" },
+    {
+      title: "My courses",
+      href: "/course",
+      current: router.pathname.startsWith("/course"),
+    },
+  ];
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -46,22 +52,18 @@ export default function Example() {
                     className="block h-8 w-auto lg:hidden"
                     src={logoImg}
                     alt="Logo"
-                    // width={32}
-                    // height={32}
                   />
                   <Image
                     className="hidden h-8 w-auto lg:block"
                     src={logoImg}
                     alt="Logo"
-                    // width={32}
-                    // height={32}
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
                     {menus.map((item) => (
                       <Link
-                        key={item.name}
+                        key={item.title}
                         href={item.href}
                         className={classNames(
                           item.current
@@ -71,7 +73,7 @@ export default function Example() {
                         )}
                         aria-current={item.current ? "page" : undefined}
                       >
-                        {item.name}
+                        {item.title}
                       </Link>
                     ))}
                   </div>
@@ -122,7 +124,7 @@ export default function Example() {
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
+                          <Link
                             href="#"
                             className={classNames(
                               active ? "bg-gray-100" : "",
@@ -130,12 +132,12 @@ export default function Example() {
                             )}
                           >
                             Profile
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
+                          <Link
                             href="#"
                             className={classNames(
                               active ? "bg-gray-100" : "",
@@ -143,20 +145,25 @@ export default function Example() {
                             )}
                           >
                             Settings
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <div
+                            // href="/sign-in"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              Cookies.remove("access_token");
+                              router.reload();
+                            }}
                             className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
+                              active ? " cursor-pointer bg-gray-100" : "",
+                              " cursor-pointer block px-4 py-2 text-sm text-gray-700"
                             )}
                           >
                             Sign out
-                          </a>
+                          </div>
                         )}
                       </Menu.Item>
                     </Menu.Items>
@@ -170,7 +177,7 @@ export default function Example() {
             <div className="space-y-1 px-2 pb-3 pt-2">
               {menus.map((item) => (
                 <Disclosure.Button
-                  key={item.name}
+                  key={item.title}
                   as="a"
                   href={item.href}
                   className={classNames(
@@ -181,7 +188,7 @@ export default function Example() {
                   )}
                   aria-current={item.current ? "page" : undefined}
                 >
-                  {item.name}
+                  {item.title}
                 </Disclosure.Button>
               ))}
             </div>

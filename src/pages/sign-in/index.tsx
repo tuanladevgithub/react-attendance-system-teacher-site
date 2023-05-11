@@ -16,8 +16,41 @@
 import Image from "next/image";
 import logoImg from "../../../public/logo.svg";
 import Link from "next/link";
+import useUser from "@/lib/use-user";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 
 const SignIn = () => {
+  const router = useRouter();
+  const { teacher, mutate, error } = useUser();
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+
+  useEffect(() => {
+    if (teacher && !error) {
+      router.replace("/");
+    }
+  }, [router, teacher, error]);
+
+  const loginTeacher = async (email: string, pass: string) => {
+    try {
+      const { data } = await axios.post(
+        `${ATTENDANCE_API_DOMAIN}/auth/login-teacher`,
+        {
+          email,
+          pass,
+        }
+      );
+
+      Cookies.set("access_token", data.accessToken);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
   return (
     <>
       <div className="flex h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -33,7 +66,7 @@ const SignIn = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -49,6 +82,7 @@ const SignIn = () => {
                   autoComplete="email"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -78,29 +112,34 @@ const SignIn = () => {
                   autoComplete="current-password"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  onChange={(e) => setPass(e.target.value)}
                 />
               </div>
             </div>
 
             <div>
               <button
-                type="submit"
+                type="button"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  loginTeacher(email, pass);
+                  mutate();
+                }}
               >
                 Sign in
               </button>
             </div>
           </form>
 
-          {/* <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?{" "}
-            <a
+          <p className="mt-10 text-center text-sm text-gray-500">
+            Not a member?
+            <Link
               href="#"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
             >
-              Start a 14 day free trial
-            </a>
-          </p> */}
+              {" Please contact your admin!"}
+            </Link>
+          </p>
         </div>
       </div>
     </>
