@@ -11,6 +11,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.17",
+    "@kunukn/react-collapse": "^2.2.10",
     "@types/node": "18.16.0",
     "@types/react": "18.0.38",
     "@types/react-dom": "18.0.11",
@@ -25,6 +26,7 @@
     "postcss": "8.4.23",
     "qrcode": "^1.5.3",
     "react": "18.2.0",
+    "react-datepicker": "^4.11.0",
     "react-dom": "18.2.0",
     "sharp": "^0.32.1",
     "swr": "^2.1.5",
@@ -35,6 +37,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.3",
     "@types/js-cookie": "^3.0.3",
-    "@types/qrcode": "^1.5.0"
+    "@types/qrcode": "^1.5.0",
+    "@types/react-datepicker": "^4.11.2"
   }
 }

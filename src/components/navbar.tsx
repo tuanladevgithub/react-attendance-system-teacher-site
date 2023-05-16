@@ -27,6 +27,11 @@ export default function Example() {
       href: "/course",
       current: router.pathname.startsWith("/course"),
     },
+    {
+      title: "Attendance settings",
+      href: "/attendance-setting",
+      current: router.pathname.startsWith("/attendance-setting"),
+    },
   ];
 
   return (
