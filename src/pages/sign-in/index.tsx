@@ -22,12 +22,15 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
+import spinnerImg from "../../../public/oval.svg";
 
 const SignIn = () => {
   const router = useRouter();
   const { teacher, mutate, error } = useUser();
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorOccur, setErrorOccur] = useState(null);
 
   useEffect(() => {
     if (teacher && !error) {
@@ -36,6 +39,7 @@ const SignIn = () => {
   }, [router, teacher, error]);
 
   const loginTeacher = async (email: string, pass: string) => {
+    setLoading(true);
     try {
       const { data } = await axios.post(
         `${ATTENDANCE_API_DOMAIN}/auth/login-teacher`,
@@ -46,9 +50,10 @@ const SignIn = () => {
       );
 
       Cookies.set("access_token", data.accessToken);
-    } catch (error) {
-      alert(error);
+    } catch (error: any) {
+      setErrorOccur(error.response.data.message);
     }
+    setLoading(false);
   };
 
   return (
@@ -66,6 +71,9 @@ const SignIn = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          {errorOccur && (
+            <span className="text-sm text-red-500 italic">* {errorOccur}</span>
+          )}
           <form className="space-y-6">
             <div>
               <label
@@ -81,6 +89,7 @@ const SignIn = () => {
                   type="email"
                   autoComplete="email"
                   required
+                  placeholder="sample@example.com"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -111,6 +120,7 @@ const SignIn = () => {
                   type="password"
                   autoComplete="current-password"
                   required
+                  placeholder="******"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   onChange={(e) => setPass(e.target.value)}
                 />
@@ -126,7 +136,16 @@ const SignIn = () => {
                   mutate();
                 }}
               >
-                Sign in
+                {loading && (
+                  <div className="mr-2">
+                    <Image
+                      className="h-5 w-auto"
+                      src={spinnerImg}
+                      alt="Spinner"
+                    />
+                  </div>
+                )}
+                <span>Sign in</span>
               </button>
             </div>
           </form>

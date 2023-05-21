@@ -46,10 +46,10 @@ function Calendar() {
   };
 
   return (
-    <div className="h-fit overflow-hidden flex items-center justify-center">
-      <div>
-        <div className="container mx-auto pt-10 pb-10">
-          <div className="wrapper bg-white border-solid border w-full">
+    <div>
+      <div className="h-fit overflow-hidden flex items-center justify-center">
+        <div className="container mx-auto max-w-2xl px-4 py-4 lg:max-w-7xl lg:px-8">
+          <div className="bg-white border-solid border w-full">
             <div className="header flex justify-between border-b p-2">
               <span className="text-lg font-bold ml-4">
                 {format(firstDayOfMonth, "MMMM yyyy")}
@@ -100,7 +100,7 @@ function Calendar() {
                               !isSameMonth(day, firstDayOfMonth)
                                 ? "bg-gray-100"
                                 : ""
-                            } p-1 h-40 xl:w-40 lg:w-30 md:w-30 sm:w-20 w-10 overflow-auto transition cursor-pointer duration-200 ease hover:bg-gray-300`}
+                            } p-1 h-40 xl:w-40 lg:w-30 md:w-30 sm:w-20 w-10 overflow-auto transition cursor-pointer duration-100 ease hover:bg-gray-300`}
                           >
                             <div className="flex flex-col h-40 mx-auto xl:w-40 lg:w-30 md:w-30 sm:w-full w-10 overflow-hidden">
                               <div className="top h-5 w-full flex items-center justify-center my-2">
