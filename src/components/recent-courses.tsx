@@ -67,7 +67,7 @@ const RecentCourses = () => {
                 <div className="my-1 px-2 flex justify-between">
                   <div>
                     <h3 className="text-base text-blue-500">
-                      <Link href={`/course/${course.id}`}>
+                      <Link href={`/course/${course.id}/session`}>
                         <span aria-hidden="true" className="absolute inset-0" />
                         {course.course_name}
                       </Link>

@@ -1,3 +1,4 @@
+import Layout from "@/components/layout";
 import Image from "next/image";
 import * as qrcode from "qrcode";
 import { useEffect, useState } from "react";
@@ -31,17 +32,21 @@ const QRCode = () => {
   }, [qrData]);
 
   return (
-    <div className="flex w-full h-screen justify-center items-center">
-      <div className="text-center">
-        <Image
-          src={qrDataURL}
-          alt="QrCode to attendance"
-          width={300}
-          height={300}
-        />
-        <p>Rotate QR code in {countDown}s.</p>
-      </div>
-    </div>
+    <>
+      <Layout>
+        <div className="flex w-full h-screen justify-center items-center">
+          <div className="text-center">
+            <Image
+              src={qrDataURL}
+              alt="QrCode to attendance"
+              width={300}
+              height={300}
+            />
+            <span>Rotate QR code in {countDown}s.</span>
+          </div>
+        </div>
+      </Layout>
+    </>
   );
 };
 

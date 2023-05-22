@@ -13,8 +13,11 @@ import {
   LIST_HOURS,
   LIST_MINS,
 } from "@/constants/common-constant";
+import { useRouter } from "next/router";
 
 const AddSession = () => {
+  const router = useRouter();
+  const courseId = router.query.courseId;
   const [disclosureState, setDisclosureState] = useState([true, true, false]);
   const [sessionDate, setSessionDate] = useState<Date | null>(null);
   const [repeatUtilDate, setRepeatUtilDate] = useState<Date | null>(null);
@@ -513,6 +516,10 @@ const AddSession = () => {
               </button>
               <button
                 type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(`/course/${courseId}/session`);
+                }}
                 className="inline-flex w-full justify-center rounded-md bg-white mx-1 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto"
               >
                 Cancel

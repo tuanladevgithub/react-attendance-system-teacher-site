@@ -1,7 +1,6 @@
 import Layout from "@/components/layout";
 import Image from "next/image";
 import Link from "next/link";
-
 import courseImg from "../../../public/course-img.jpg";
 import { MagnifyingGlassIcon, UsersIcon } from "@heroicons/react/24/solid";
 import { Dialog, Transition } from "@headlessui/react";
@@ -10,6 +9,7 @@ import { Course } from "@/types/course.type";
 import axios from "axios";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import Cookies from "js-cookie";
+import emptyDataImg from "../../../public/empty_data_icon.svg";
 
 const MyCourses = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -19,7 +19,7 @@ const MyCourses = () => {
   useEffect(() => {
     const fetchListCourse = async () => {
       const { data } = await axios.get(
-        `${ATTENDANCE_API_DOMAIN}/teacher/list-course`,
+        `${ATTENDANCE_API_DOMAIN}/teacher/course`,
         {
           headers: {
             authorization: `Bearer ${Cookies.get("access_token")}`,
@@ -42,8 +42,8 @@ const MyCourses = () => {
 
   const handleSearchCourse = async () => {
     const url = !searchText
-      ? `${ATTENDANCE_API_DOMAIN}/teacher/list-course`
-      : `${ATTENDANCE_API_DOMAIN}/teacher/list-course?search=${searchText}`;
+      ? `${ATTENDANCE_API_DOMAIN}/teacher/course`
+      : `${ATTENDANCE_API_DOMAIN}/teacher/course?search=${searchText}`;
 
     const { data } = await axios.get(url, {
       headers: {
@@ -56,39 +56,18 @@ const MyCourses = () => {
   return (
     <>
       <Layout>
-        <div>
-          <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
-            <h2 className="sr-only">My courses</h2>
-
-            <div className="flex justify-between my-4">
-              <div className="filter-group">
-                <div className="flex items-center justify-center">
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 sm:text-sm">
-                      <MagnifyingGlassIcon className="w-5 h-5 text-opacity-100" />
-                    </div>
-                    <input
-                      type="text"
-                      name="price"
-                      id="price"
-                      className="block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      placeholder="Search course..."
-                      onChange={(e) => setSearchText(e.target.value)}
-                    />
-                  </div>
-                  <div className="mx-2">
-                    <button
-                      type="button"
-                      onClick={handleSearchCourse}
-                      className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      Search
-                    </button>
-                  </div>
-                </div>
+        {!courses || courses.length < 1 ? (
+          <div className="mx-auto mt-40 w-full h-40 flex justify-center items-center">
+            <div className="flex flex-col justify-center items-center">
+              <div>
+                <Image
+                  className="h-auto w-auto"
+                  src={emptyDataImg}
+                  alt="Data empty to display"
+                />
               </div>
-
-              <div className="button-group flex justify-center items-center">
+              <div className="text-gray-400">There is no data to display.</div>
+              <div className="mt-6">
                 <button
                   type="button"
                   onClick={openModal}
@@ -98,46 +77,89 @@ const MyCourses = () => {
                 </button>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-              {courses.map((course) => (
-                <div key={course.id} className="group relative">
-                  <div className="bg-white w-full border-solid border rounded-lg">
-                    <div className="aspect-h-1 aspect-w-2 w-full overflow-hidden rounded-t-lg bg-gray-200">
-                      <Image
-                        src={courseImg}
-                        alt={`${course.subject?.subject_code} - ${course.course_code}`}
-                        className="h-full w-full object-cover object-center group-hover:opacity-75"
+          </div>
+        ) : (
+          <div>
+            <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
+              <div className="flex justify-between my-4">
+                <div className="filter-group">
+                  <div className="flex items-center justify-center">
+                    <div className="relative rounded-md shadow-sm">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 sm:text-sm">
+                        <MagnifyingGlassIcon className="w-5 h-5 text-opacity-100" />
+                      </div>
+                      <input
+                        type="text"
+                        name="price"
+                        id="price"
+                        className="block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        placeholder="Search course..."
+                        onChange={(e) => setSearchText(e.target.value)}
                       />
                     </div>
-                    <div className="my-1 px-2 flex justify-between">
-                      <div>
-                        <h3 className="text-base text-blue-500">
-                          <Link href={`/course/${course.id}`}>
-                            <span
-                              aria-hidden="true"
-                              className="absolute inset-0"
-                            />
-                            {course.subject?.subject_name}
-                          </Link>
-                        </h3>
-                        <p className="mt-1 text-sm text-gray-500">
-                          {`${course.subject?.subject_code} - ${course.course_code}`}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
-                        <div className="mx-1">
-                          <UsersIcon className="h-5 w-5" aria-hidden="true" />
-                        </div>
-                        <p>{course.countStudents}</p>
-                      </div>
+                    <div className="mx-2">
+                      <button
+                        type="button"
+                        onClick={handleSearchCourse}
+                        className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      >
+                        Search
+                      </button>
                     </div>
                   </div>
                 </div>
-              ))}
+
+                <div className="button-group flex justify-center items-center">
+                  <button
+                    type="button"
+                    onClick={openModal}
+                    className="flex w-full justify-center rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  >
+                    + New Course
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                {courses.map((course) => (
+                  <div key={course.id} className="group relative">
+                    <div className="bg-white w-full border-solid border rounded-lg">
+                      <div className="aspect-h-1 aspect-w-2 w-full overflow-hidden rounded-t-lg bg-gray-200">
+                        <Image
+                          src={courseImg}
+                          alt={`${course.subject?.subject_code} - ${course.course_code}`}
+                          className="h-full w-full object-cover object-center group-hover:opacity-75"
+                        />
+                      </div>
+                      <div className="my-1 px-2 flex justify-between">
+                        <div>
+                          <h3 className="text-base text-blue-500">
+                            <Link href={`/course/${course.id}/session`}>
+                              <span
+                                aria-hidden="true"
+                                className="absolute inset-0"
+                              />
+                              {course.subject?.subject_name}
+                            </Link>
+                          </h3>
+                          <p className="mt-1 text-sm text-gray-500">
+                            {`${course.subject?.subject_code} - ${course.course_code}`}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
+                          <div className="mx-1">
+                            <UsersIcon className="h-5 w-5" aria-hidden="true" />
+                          </div>
+                          <p>{course.countStudents}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </Layout>
 
       <Transition appear show={isOpen} as={Fragment}>
