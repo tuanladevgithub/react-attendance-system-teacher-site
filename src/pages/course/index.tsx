@@ -5,111 +5,53 @@ import Link from "next/link";
 import courseImg from "../../../public/course-img.jpg";
 import { MagnifyingGlassIcon, UsersIcon } from "@heroicons/react/24/solid";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
-
-const courses = [
-  {
-    id: 1,
-    name: "Earthen Bottle",
-    href: "#",
-    price: "$48",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
-    imageAlt:
-      "Tall slender porcelain bottle with natural clay textured body and cork stopper.",
-  },
-  {
-    id: 2,
-    name: "Nomad Tumbler",
-    href: "#",
-    price: "$35",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
-    imageAlt:
-      "Olive drab green insulated bottle with flared screw lid and flat top.",
-  },
-  {
-    id: 3,
-    name: "Focus Paper Refill",
-    href: "#",
-    price: "$89",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
-    imageAlt:
-      "Person using a pen to cross a task off a productivity paper card.",
-  },
-  {
-    id: 4,
-    name: "Machined Mechanical Pencil",
-    href: "#",
-    price: "$35",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
-    imageAlt:
-      "Hand holding black machined steel mechanical pencil with brass tip and top.",
-  },
-  {
-    id: 5,
-    name: "Machined Mechanical Pencil",
-    href: "#",
-    price: "$35",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
-    imageAlt:
-      "Hand holding black machined steel mechanical pencil with brass tip and top.",
-  },
-  {
-    id: 6,
-    name: "Earthen Bottle",
-    href: "#",
-    price: "$48",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
-    imageAlt:
-      "Tall slender porcelain bottle with natural clay textured body and cork stopper.",
-  },
-  {
-    id: 7,
-    name: "Nomad Tumbler",
-    href: "#",
-    price: "$35",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
-    imageAlt:
-      "Olive drab green insulated bottle with flared screw lid and flat top.",
-  },
-  {
-    id: 8,
-    name: "Focus Paper Refill",
-    href: "#",
-    price: "$89",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
-    imageAlt:
-      "Person using a pen to cross a task off a productivity paper card.",
-  },
-  {
-    id: 9,
-    name: "Machined Mechanical Pencil",
-    href: "#",
-    price: "$35",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
-    imageAlt:
-      "Hand holding black machined steel mechanical pencil with brass tip and top.",
-  },
-];
+import { Fragment, useEffect, useState } from "react";
+import { Course } from "@/types/course.type";
+import axios from "axios";
+import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
+import Cookies from "js-cookie";
 
 const MyCourses = () => {
-  let [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState<string | undefined>(undefined);
+  const [courses, setCourses] = useState<Course[]>([]);
 
-  function closeModal() {
+  useEffect(() => {
+    const fetchListCourse = async () => {
+      const { data } = await axios.get(
+        `${ATTENDANCE_API_DOMAIN}/teacher/list-course`,
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("access_token")}`,
+          },
+        }
+      );
+      setCourses(data);
+    };
+
+    fetchListCourse();
+  }, []);
+
+  const closeModal = () => {
     setIsOpen(false);
-  }
+  };
 
-  function openModal() {
+  const openModal = () => {
     setIsOpen(true);
-  }
+  };
+
+  const handleSearchCourse = async () => {
+    const url = !searchText
+      ? `${ATTENDANCE_API_DOMAIN}/teacher/list-course`
+      : `${ATTENDANCE_API_DOMAIN}/teacher/list-course?search=${searchText}`;
+
+    const { data } = await axios.get(url, {
+      headers: {
+        authorization: `Bearer ${Cookies.get("access_token")}`,
+      },
+    });
+    setCourses(data);
+  };
 
   return (
     <>
@@ -131,11 +73,13 @@ const MyCourses = () => {
                       id="price"
                       className="block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       placeholder="Search course..."
+                      onChange={(e) => setSearchText(e.target.value)}
                     />
                   </div>
                   <div className="mx-2">
                     <button
                       type="button"
+                      onClick={handleSearchCourse}
                       className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                       Search
@@ -162,7 +106,7 @@ const MyCourses = () => {
                     <div className="aspect-h-1 aspect-w-2 w-full overflow-hidden rounded-t-lg bg-gray-200">
                       <Image
                         src={courseImg}
-                        alt={course.imageAlt}
+                        alt={`${course.subject?.subject_code} - ${course.course_code}`}
                         className="h-full w-full object-cover object-center group-hover:opacity-75"
                       />
                     </div>
@@ -174,18 +118,18 @@ const MyCourses = () => {
                               aria-hidden="true"
                               className="absolute inset-0"
                             />
-                            {course.name}
+                            {course.subject?.subject_name}
                           </Link>
                         </h3>
                         <p className="mt-1 text-sm text-gray-500">
-                          IT4996 - 765432
+                          {`${course.subject?.subject_code} - ${course.course_code}`}
                         </p>
                       </div>
                       <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
                         <div className="mx-1">
                           <UsersIcon className="h-5 w-5" aria-hidden="true" />
                         </div>
-                        <p>24</p>
+                        <p>{course.countStudents}</p>
                       </div>
                     </div>
                   </div>
