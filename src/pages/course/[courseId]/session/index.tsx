@@ -215,7 +215,10 @@ const CourseAttendanceList = () => {
                           </div>
                         </Link>
 
-                        <Link href="#" className="font-medium text-blue-500">
+                        <Link
+                          href={`/course/${courseId}/session/${session.id}/result`}
+                          className="font-medium text-blue-500"
+                        >
                           <div className="w-5 mr-1">
                             <PlayIcon />
                           </div>
