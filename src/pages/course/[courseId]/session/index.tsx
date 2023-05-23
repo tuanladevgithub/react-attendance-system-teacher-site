@@ -13,9 +13,11 @@ import { format } from "date-fns";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
 import emptyDataImg from "../../../../../public/empty_data_icon.svg";
+import { Dialog, Transition } from "@headlessui/react";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 const classNames = (...classes: string[]) => {
   return classes.filter(Boolean).join(" ");
@@ -41,6 +43,7 @@ const CourseAttendanceList = () => {
   const [attendanceSessions, setAttendanceSessions] = useState<
     AttendanceSession[]
   >([]);
+  const [deleteSessionId, setDeleteSessionId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchListSessionData = async () => {
@@ -57,6 +60,21 @@ const CourseAttendanceList = () => {
 
     if (courseId) fetchListSessionData();
   }, [courseId]);
+
+  const handleDeleteAttendanceSession = () => {
+    if (deleteSessionId !== null) {
+      const url = `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session/${deleteSessionId}`;
+
+      const result = axios.delete(url, {
+        headers: {
+          authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      });
+
+      setDeleteSessionId(null);
+      router.reload();
+    }
+  };
 
   return (
     <>
@@ -209,67 +227,104 @@ const CourseAttendanceList = () => {
                           </div>
                         </Link>
 
-                        <Link href="#" className="font-medium text-red-400">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setDeleteSessionId(session.id);
+                          }}
+                          className="font-medium text-red-400"
+                        >
                           <div className="w-5 mr-1">
                             <TrashIcon />
                           </div>
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   ))}
-
-                  {/* <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                  <td className="w-4 p-4">
-                    <div className="flex items-center">
-                      <input
-                        id="checkbox-table-search-1"
-                        type="checkbox"
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <label
-                        htmlFor="checkbox-table-search-1"
-                        className="sr-only"
-                      >
-                        checkbox
-                      </label>
-                    </div>
-                  </td>
-                  <td className="w-44 px-6 py-4">Thu 20 Apr 2023</td>
-                  <td className="w-44 px-6 py-4">17:20AM - 18:00AM</td>
-                  <td className="w-36 px-6 py-4">All students</td>
-                  <td className="px-6 py-4">Regular class session</td>
-                  <td className="flex items-center px-6 py-4 space-x-3">
-                    <Link href="#" className="font-medium text-gray-950">
-                      <div className="w-5 mr-1">
-                        <QrCodeIcon />
-                      </div>
-                    </Link>
-
-                    <Link href="#" className="font-medium text-blue-600">
-                      <div className="w-5 mr-1">
-                        <PlayIcon />
-                      </div>
-                    </Link>
-
-                    <Link href="#" className="font-medium text-gray-950">
-                      <div className="w-5 mr-1">
-                        <Cog8ToothIcon />
-                      </div>
-                    </Link>
-
-                    <Link href="#" className="font-medium text-red-500">
-                      <div className="w-5 mr-1">
-                        <TrashIcon />
-                      </div>
-                    </Link>
-                  </td>
-                </tr> */}
                 </tbody>
               </table>
             </div>
           </div>
         )}
       </Layout>
+
+      <Transition.Root show={deleteSessionId !== null} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setDeleteSessionId(null)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              >
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <ExclamationTriangleIcon
+                          className="h-6 w-6 text-red-600"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <Dialog.Title
+                          as="h3"
+                          className="text-base font-semibold leading-6 text-gray-900"
+                        >
+                          Remove session
+                        </Dialog.Title>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Are you sure you want to remove this attendance
+                            session? All of your data will be permanently
+                            removed. This action cannot be undone.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button
+                      type="button"
+                      className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+                      onClick={handleDeleteAttendanceSession}
+                    >
+                      Remove
+                    </button>
+                    <button
+                      type="button"
+                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                      onClick={() => setDeleteSessionId(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition.Root>
     </>
   );
 };
