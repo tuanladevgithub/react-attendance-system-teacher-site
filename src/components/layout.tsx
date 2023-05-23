@@ -18,20 +18,46 @@ export default function Layout({ children }: LayoutProps) {
   }, [router, teacher, error]);
 
   const getHeaderTitle = () => {
-    if (router.pathname === "/") return "Dashboard";
-    if (router.pathname.startsWith("/course")) return "My courses";
+    if (router.pathname === "/") return ["Dashboard"];
+
+    if (router.pathname === "/course") return ["My courses"];
+
+    if (router.pathname === "/course/[courseId]/session")
+      return ["My courses", "Attendance sessions"];
+
+    if (router.pathname === "/course/[courseId]/add-session")
+      return ["My courses", "Attendance sessions", "Add sessions"];
+
+    if (router.pathname === "/course/[courseId]/session/[sessionId]/result")
+      return ["My courses", "Attendance sessions", "Results"];
+
+    return [];
   };
 
   return (
     <>
       <Navbar />
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            {getHeaderTitle()}
-          </h1>
-        </div>
-      </header>
+      {getHeaderTitle().length > 0 && (
+        <header className="bg-white shadow">
+          <div className="flex items-center mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+              {getHeaderTitle()[0]}
+            </h1>
+
+            {getHeaderTitle()[1] && (
+              <h2 className="text-xl mx-2 tracking-tight text-gray-700">
+                {"/ " + getHeaderTitle()[1]}
+              </h2>
+            )}
+
+            {getHeaderTitle()[2] && (
+              <h2 className="text-xl mx-2 tracking-tight text-gray-700">
+                {"/ " + getHeaderTitle()[2]}
+              </h2>
+            )}
+          </div>
+        </header>
+      )}
       <main>{children}</main>
     </>
   );
