@@ -14,17 +14,29 @@ import {
   LIST_MINS,
 } from "@/constants/common-constant";
 import { useRouter } from "next/router";
+import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { format } from "date-fns";
+import { AttendanceSession } from "@/types/attendance-session.type";
 
 const AddSession = () => {
   const router = useRouter();
   const courseId = router.query.courseId;
-  const [disclosureState, setDisclosureState] = useState([true, true, false]);
-  const [sessionDate, setSessionDate] = useState<Date | null>(null);
-  const [repeatUtilDate, setRepeatUtilDate] = useState<Date | null>(null);
+  const [disclosureState, setDisclosureState] = useState<boolean[]>([
+    true,
+    true,
+    false,
+  ]);
+  const [sessionDate, setSessionDate] = useState<Date>(new Date());
   const [sessionStartHour, setSessionStartHour] = useState<string>("08");
   const [sessionStartMin, setSessionStartMin] = useState<string>("00");
   const [sessionEndHour, setSessionEndHour] = useState<string>("09");
   const [sessionEndMin, setSessionEndMin] = useState<string>("00");
+  const [sessionDescription, setSessionDescription] = useState<
+    string | undefined
+  >(undefined);
+  const [repeatUtilDate, setRepeatUtilDate] = useState<Date>(new Date());
 
   const handleToggleBlock = (index: number) => {
     const newDisclosureState = [...disclosureState];
@@ -33,13 +45,34 @@ const AddSession = () => {
   };
 
   const handleChangeSessionDate = (date: Date) => {
-    alert(date);
     setSessionDate(date);
   };
 
   const handleChangeRepeatUtilDate = (date: Date) => {
-    alert(date);
     setRepeatUtilDate(date);
+  };
+
+  const handleCreateAttendanceSession = async () => {
+    const url = `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/add-session`;
+
+    const { data } = await axios.post<AttendanceSession>(
+      url,
+      {
+        session_date: format(sessionDate, "yyyy-MM-dd"),
+        start_hour: parseInt(sessionStartHour),
+        start_min: parseInt(sessionStartMin),
+        end_hour: parseInt(sessionEndHour),
+        end_min: parseInt(sessionEndMin),
+        description: sessionDescription,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      }
+    );
+
+    router.push(`/course/${courseId}/session`);
   };
 
   return (
@@ -97,7 +130,7 @@ const AddSession = () => {
                   </div>
 
                   <div className="w-full flex flex-row items-start mb-3">
-                    <div className="basis-1/4">Date (*)</div>
+                    <div className="basis-1/4">Session date (*)</div>
                     <div className="basis-3/4">
                       <div className="flex justify-start items-center">
                         <div className="w-fit">
@@ -381,6 +414,7 @@ const AddSession = () => {
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         defaultValue={""}
                         placeholder="Enter session description here..."
+                        onChange={(e) => setSessionDescription(e.target.value)}
                       />
                     </div>
                   </div>
@@ -510,6 +544,7 @@ const AddSession = () => {
             <div className="mt-4 px-4 py-3 flex justify-center items-center sm:px-6">
               <button
                 type="button"
+                onClick={handleCreateAttendanceSession}
                 className="inline-flex w-full justify-center rounded-md bg-green-600 mx-1 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
               >
                 Create
