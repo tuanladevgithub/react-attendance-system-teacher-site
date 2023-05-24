@@ -61,11 +61,11 @@ const CourseAttendanceList = () => {
     if (courseId) fetchListSessionData();
   }, [courseId]);
 
-  const handleDeleteAttendanceSession = () => {
+  const handleDeleteAttendanceSession = async () => {
     if (deleteSessionId !== null) {
       const url = `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session/${deleteSessionId}`;
 
-      const result = axios.delete(url, {
+      const result = await axios.delete(url, {
         headers: {
           authorization: `Bearer ${Cookies.get("access_token")}`,
         },
