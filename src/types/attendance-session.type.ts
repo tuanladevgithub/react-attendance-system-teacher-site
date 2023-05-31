@@ -1,3 +1,5 @@
+import { Course } from "./course.type";
+
 export type AttendanceSession = {
   id: number;
 
@@ -16,4 +18,6 @@ export type AttendanceSession = {
   end_min: number;
 
   description?: string;
+
+  course?: Course;
 };
