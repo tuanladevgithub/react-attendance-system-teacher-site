@@ -24,6 +24,16 @@ import Cookies from "js-cookie";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import spinnerImg from "../../../public/oval.svg";
 
+const delay = (ms: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
+
+const classNames = (...classes: string[]) => {
+  return classes.filter(Boolean).join(" ");
+};
+
 const SignIn = () => {
   const router = useRouter();
   const { teacher, mutate, error } = useUser();
@@ -40,6 +50,7 @@ const SignIn = () => {
 
   const loginTeacher = async (email: string, pass: string) => {
     setLoading(true);
+    await delay(2000);
     try {
       const { data } = await axios.post(
         `${ATTENDANCE_API_DOMAIN}/auth/login-teacher`,
@@ -120,7 +131,7 @@ const SignIn = () => {
                   type="password"
                   autoComplete="current-password"
                   required
-                  placeholder="******"
+                  placeholder="*********"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   onChange={(e) => setPass(e.target.value)}
                 />
@@ -130,7 +141,13 @@ const SignIn = () => {
             <div>
               <button
                 type="button"
-                className="flex w-full justify-center items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className={classNames(
+                  loading
+                    ? "bg-slate-500 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-500",
+                  "flex w-full justify-center items-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm",
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                )}
                 onClick={() => {
                   loginTeacher(email, pass);
                   mutate();
