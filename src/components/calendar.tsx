@@ -59,18 +59,20 @@ const Calendar = () => {
 
   useEffect(() => {
     const fetchCurrentMonthSessions = async () => {
-      const { data } = await axios.get(
-        `${ATTENDANCE_API_DOMAIN}/teacher/current-month-sessions?currentYearMonth=${format(
-          new Date(),
-          "yyyy-MM"
-        )}`,
-        {
-          headers: {
-            authorization: `Bearer ${Cookies.get("access_token")}`,
-          },
-        }
-      );
-      setDateSessions(data);
+      if (Cookies.get("access_token")) {
+        const { data } = await axios.get(
+          `${ATTENDANCE_API_DOMAIN}/teacher/current-month-sessions?currentYearMonth=${format(
+            new Date(),
+            "yyyy-MM"
+          )}`,
+          {
+            headers: {
+              authorization: `Bearer ${Cookies.get("access_token")}`,
+            },
+          }
+        );
+        setDateSessions(data);
+      }
     };
 
     fetchCurrentMonthSessions();
