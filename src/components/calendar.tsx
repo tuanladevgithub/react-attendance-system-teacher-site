@@ -51,20 +51,19 @@ const dayTitles = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const Calendar = () => {
   const today = startOfToday();
-
-  const [currMonth, setCurrMonth] = useState(() => format(today, "MMM-yyyy"));
+  const [currMonthToDisplay, setCurrMonthToDisplay] = useState(() =>
+    format(today, "MMM-yyyy")
+  );
+  const [yearMonth, setYearMonth] = useState(() => format(today, "yyyy-MM"));
   const [dateSessions, setDateSessions] = useState<{
     [sessionDateProp: string]: AttendanceSession[];
   }>({});
 
   useEffect(() => {
-    const fetchCurrentMonthSessions = async () => {
+    const fetchMonthSessions = async () => {
       if (Cookies.get("access_token")) {
         const { data } = await axios.get(
-          `${ATTENDANCE_API_DOMAIN}/teacher/current-month-sessions?currentYearMonth=${format(
-            new Date(),
-            "yyyy-MM"
-          )}`,
+          `${ATTENDANCE_API_DOMAIN}/teacher/month-sessions?yearMonth=${yearMonth}`,
           {
             headers: {
               authorization: `Bearer ${Cookies.get("access_token")}`,
@@ -75,10 +74,10 @@ const Calendar = () => {
       }
     };
 
-    fetchCurrentMonthSessions();
-  }, []);
+    fetchMonthSessions();
+  }, [yearMonth]);
 
-  let firstDayOfMonth = parse(currMonth, "MMM-yyyy", new Date());
+  let firstDayOfMonth = parse(currMonthToDisplay, "MMM-yyyy", new Date());
   const listDays = eachDayOfInterval({
     start: startOfWeek(firstDayOfMonth),
     end: endOfWeek(endOfMonth(firstDayOfMonth)),
@@ -92,13 +91,15 @@ const Calendar = () => {
   const getPrevMonth = (event: React.MouseEvent<SVGSVGElement>) => {
     event.preventDefault();
     const firstDayOfPrevMonth = add(firstDayOfMonth, { months: -1 });
-    setCurrMonth(format(firstDayOfPrevMonth, "MMM-yyyy"));
+    setCurrMonthToDisplay(format(firstDayOfPrevMonth, "MMM-yyyy"));
+    setYearMonth(format(firstDayOfPrevMonth, "yyyy-MM"));
   };
 
   const getNextMonth = (event: React.MouseEvent<SVGSVGElement>) => {
     event.preventDefault();
     const firstDayOfNextMonth = add(firstDayOfMonth, { months: 1 });
-    setCurrMonth(format(firstDayOfNextMonth, "MMM-yyyy"));
+    setCurrMonthToDisplay(format(firstDayOfNextMonth, "MMM-yyyy"));
+    setYearMonth(format(firstDayOfNextMonth, "yyyy-MM"));
   };
 
   return (
