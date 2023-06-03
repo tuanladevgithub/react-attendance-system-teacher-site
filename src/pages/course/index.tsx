@@ -26,6 +26,7 @@ const formatTimeDisplay = (hour: number, min: number) => {
 const MyCourses = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string | undefined>(undefined);
+  const [hasCourses, setHasCourses] = useState<boolean>(false);
   const [courses, setCourses] = useState<Course[]>([]);
   const [todaySchedules, setTodaySchedules] = useState<CourseSchedule[]>([]);
 
@@ -59,6 +60,7 @@ const MyCourses = () => {
         }
       );
       setCourses(data);
+      setHasCourses(data.length > 0);
     };
 
     fetchListCourse();
@@ -88,7 +90,7 @@ const MyCourses = () => {
   return (
     <>
       <Layout>
-        {!courses || courses.length < 1 ? (
+        {!hasCourses ? (
           <div className="mx-auto mt-40 w-full h-40 flex justify-center items-center">
             <div className="flex flex-col justify-center items-center">
               <div>
@@ -98,7 +100,7 @@ const MyCourses = () => {
                   alt="Data empty to display"
                 />
               </div>
-              <div className="text-gray-400">There is no data to display.</div>
+              <div className="text-gray-500">There is no data to display.</div>
               <div className="mt-6">
                 <button
                   type="button"
@@ -194,7 +196,13 @@ const MyCourses = () => {
                         id="price"
                         className="block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         placeholder="Search course..."
+                        value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleSearchCourse();
+                          }
+                        }}
                       />
                     </div>
                     <div className="mx-2">
@@ -220,43 +228,63 @@ const MyCourses = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-                {courses.map((course) => (
-                  <div key={course.id} className="group relative">
-                    <div className="bg-white w-full border-solid border rounded-lg">
-                      <div className="aspect-h-1 aspect-w-2 w-full overflow-hidden rounded-t-lg bg-gray-200">
-                        <Image
-                          src={courseImg}
-                          alt={`${course.subject?.subject_code} - ${course.course_code}`}
-                          className="h-full w-full object-cover object-center group-hover:opacity-75"
-                        />
-                      </div>
-                      <div className="my-1 px-2 flex justify-between">
-                        <div>
-                          <h3 className="text-base text-blue-500">
-                            <Link href={`/course/${course.id}/session`}>
-                              <span
-                                aria-hidden="true"
-                                className="absolute inset-0"
-                              />
-                              {course.subject?.subject_name}
-                            </Link>
-                          </h3>
-                          <p className="mt-1 text-sm text-gray-500">
-                            {`${course.subject?.subject_code} - ${course.course_code}`}
-                          </p>
+              {!courses || courses.length < 1 ? (
+                <div className="mx-auto mt-20 w-full h-30 flex justify-center items-center">
+                  <div className="flex flex-col justify-center items-center">
+                    <div>
+                      <Image
+                        className="h-auto w-auto"
+                        src={emptyDataImg}
+                        alt="Data empty to display"
+                      />
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      No courses found for your request.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                  {courses.map((course) => (
+                    <div key={course.id} className="group relative">
+                      <div className="bg-white w-full border-solid border rounded-lg">
+                        <div className="aspect-h-1 aspect-w-2 w-full overflow-hidden rounded-t-lg bg-gray-200">
+                          <Image
+                            src={courseImg}
+                            alt={`${course.subject?.subject_code} - ${course.course_code}`}
+                            className="h-full w-full object-cover object-center group-hover:opacity-75"
+                          />
                         </div>
-                        <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
-                          <div className="mx-1">
-                            <UsersIcon className="h-5 w-5" aria-hidden="true" />
+                        <div className="my-1 px-2 flex justify-between">
+                          <div>
+                            <h3 className="text-base text-blue-500">
+                              <Link href={`/course/${course.id}/session`}>
+                                <span
+                                  aria-hidden="true"
+                                  className="absolute inset-0"
+                                />
+                                {course.subject?.subject_name}
+                              </Link>
+                            </h3>
+                            <p className="mt-1 text-sm text-gray-500">
+                              {`${course.subject?.subject_code} - ${course.course_code}`}
+                            </p>
                           </div>
-                          <p>{course.countStudents}</p>
+                          <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
+                            <div className="mx-1">
+                              <UsersIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <p>{course.countStudents}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
