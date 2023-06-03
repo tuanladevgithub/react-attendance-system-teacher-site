@@ -35,16 +35,16 @@ const classNames = (...classes: string[]) => {
 };
 
 const eventColors = [
-  "emerald",
-  "orange",
-  "yellow",
-  "lime",
-  "green",
-  "teal",
-  "violet",
-  "cyan",
-  "indigo",
-  "purple",
+  "#10b981",
+  "#f97316",
+  "#84cc16",
+  "#eab308",
+  "#22c55e",
+  "#14b8a6",
+  "#8b5cf6",
+  "#06b6d4",
+  "#6366f1",
+  "#a855f7",
 ];
 
 const dayTitles = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -178,7 +178,11 @@ const Calendar = () => {
                                   ].map((session: AttendanceSession) => (
                                     <div
                                       key={session.id}
-                                      className="bg-teal-500 event text-white cursor-pointer rounded px-0.5 text-sm mb-1"
+                                      style={{
+                                        backgroundColor:
+                                          eventColors[session.id % 10],
+                                      }}
+                                      className="event text-white cursor-pointer rounded px-0.5 text-sm mb-1"
                                     >
                                       <span className="event-name">
                                         {formatEventDisplay(session)}
