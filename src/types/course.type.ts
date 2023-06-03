@@ -5,7 +5,7 @@ export type CourseSchedule = {
 
   t_course_id: number;
 
-  day_of_week: string;
+  day_of_week: number;
 
   start_hour: number;
 
@@ -14,6 +14,8 @@ export type CourseSchedule = {
   end_hour: number;
 
   end_min: number;
+
+  course?: Course;
 };
 
 export type Course = {

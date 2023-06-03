@@ -5,16 +5,48 @@ import courseImg from "../../../public/course-img.jpg";
 import { MagnifyingGlassIcon, UsersIcon } from "@heroicons/react/24/solid";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
-import { Course } from "@/types/course.type";
+import { Course, CourseSchedule } from "@/types/course.type";
 import axios from "axios";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import Cookies from "js-cookie";
 import emptyDataImg from "../../../public/empty_data_icon.svg";
+import { format, getDay } from "date-fns";
+
+const formatTimeDisplay = (hour: number, min: number) => {
+  const type = hour < 12 ? "AM" : "PM";
+  let hourDisplay = "";
+  if (type === "AM") hourDisplay = hour < 10 ? `0${hour}` : `${hour}`;
+  else hourDisplay = hour - 12 < 10 ? `0${hour - 12}` : `${hour - 12}`;
+
+  const minDisplay = min < 10 ? `0${min}` : `${min}`;
+
+  return `${hourDisplay}:${minDisplay} ${type}`;
+};
 
 const MyCourses = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string | undefined>(undefined);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [todaySchedules, setTodaySchedules] = useState<CourseSchedule[]>([]);
+
+  useEffect(() => {
+    const fetchTodaySchedules = async () => {
+      const { data } = await axios.get(
+        `${ATTENDANCE_API_DOMAIN}/teacher/today-schedule?today=${format(
+          new Date(),
+          "yyyy-MM-dd"
+        )}&dayOfWeek=${getDay(new Date())}`,
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("access_token")}`,
+          },
+        }
+      );
+      setTodaySchedules(data);
+    };
+
+    fetchTodaySchedules();
+  }, []);
 
   useEffect(() => {
     const fetchListCourse = async () => {
@@ -80,7 +112,75 @@ const MyCourses = () => {
           </div>
         ) : (
           <div>
-            <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
+            <div className="mx-auto max-w-2xl px-4 pt-8 lg:max-w-7xl lg:px-8">
+              <h2 className="text-xl font-bold tracking-tight text-gray-900">
+                {`Today schedules ~ ${format(new Date(), "eee dd/MM/yyyy")}`}
+              </h2>
+              {!todaySchedules || todaySchedules.length < 1 ? (
+                <div className="mx-auto mt-4 w-full h-fit flex justify-center items-center">
+                  <div className="flex flex-col justify-center items-center">
+                    <div>
+                      <Image
+                        className="h-16 w-auto"
+                        src={emptyDataImg}
+                        alt="Data empty to display"
+                      />
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      There are no classes scheduled for today.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 bg-white shadow-lg rounded-md">
+                  <ul role="list" className="divide-y divide-gray-300">
+                    {todaySchedules.map((schedule) => (
+                      <li
+                        key={schedule.id}
+                        className="flex justify-between gap-x-6 p-2 hover:bg-gray-200 cursor-pointer"
+                      >
+                        <div className="flex gap-x-4">
+                          <div className="min-w-0 flex-auto">
+                            <p className="text-sm font-semibold leading-6 text-gray-700">
+                              {formatTimeDisplay(
+                                schedule.start_hour,
+                                schedule.start_min
+                              )}{" "}
+                              to{" "}
+                              {formatTimeDisplay(
+                                schedule.end_hour,
+                                schedule.end_min
+                              )}
+                            </p>
+                            <p className="mt-1 truncate text-sm leading-5 text-gray-500">
+                              {schedule.course?.subject?.subject_code} -{" "}
+                              {schedule.course?.course_code}:{" "}
+                              <span className="text-blue-500">
+                                {schedule.course?.subject?.subject_name}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
+                          <div className="mx-1">
+                            <UsersIcon className="h-5 w-5" aria-hidden="true" />
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-gray-500">
+                            {schedule.course?.countStudents}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
+              <h2 className="text-xl font-bold tracking-tight text-gray-900">
+                List courses
+              </h2>
+
               <div className="flex justify-between my-4">
                 <div className="filter-group">
                   <div className="flex items-center justify-center">
