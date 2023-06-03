@@ -134,13 +134,13 @@ const MyCourses = () => {
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 bg-white shadow-lg rounded-md">
-                  <ul role="list" className="divide-y divide-gray-300">
-                    {todaySchedules.map((schedule) => (
-                      <li
-                        key={schedule.id}
-                        className="flex justify-between gap-x-6 p-2 hover:bg-gray-200 cursor-pointer"
-                      >
+                <div className="mt-4 bg-white divide-y divide-dashed divide-gray-300 shadow-lg rounded-lg">
+                  {todaySchedules.map((schedule) => (
+                    <div
+                      key={schedule.id}
+                      className="flex justify-between gap-x-6 p-2 hover:bg-gray-200 cursor-pointer"
+                    >
+                      <Link href={`/course/${schedule.course?.id}/session`}>
                         <div className="flex gap-x-4">
                           <div className="min-w-0 flex-auto">
                             <p className="text-sm font-semibold leading-6 text-gray-700">
@@ -163,17 +163,18 @@ const MyCourses = () => {
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
-                          <div className="mx-1">
-                            <UsersIcon className="h-5 w-5" aria-hidden="true" />
-                          </div>
-                          <p className="mt-1 text-xs leading-5 text-gray-500">
-                            {schedule.course?.countStudents}
-                          </p>
+                      </Link>
+
+                      <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
+                        <div className="mx-1">
+                          <UsersIcon className="h-5 w-5" aria-hidden="true" />
                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                        <p className="mt-1 text-xs leading-5 text-gray-500">
+                          {schedule.course?.countStudents}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

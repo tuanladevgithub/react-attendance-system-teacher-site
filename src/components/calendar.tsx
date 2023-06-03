@@ -1,9 +1,17 @@
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import { AttendanceSession } from "@/types/attendance-session.type";
+import { formatTimeDisplay } from "@/utils/date-time.util";
+import { Dialog, Transition } from "@headlessui/react";
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/outline";
+import {
+  AcademicCapIcon,
+  Cog8ToothIcon,
+  PlayIcon,
+  QrCodeIcon,
+} from "@heroicons/react/24/solid";
 import axios from "axios";
 import {
   add,
@@ -18,7 +26,8 @@ import {
   startOfWeek,
 } from "date-fns";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Fragment, useEffect, useState } from "react";
 
 const formatEventDisplay = (session: AttendanceSession) => {
   const formatNumber = (num: number) => (num < 10 ? `0${num}` : `${num}`);
@@ -58,6 +67,7 @@ const Calendar = () => {
   const [dateSessions, setDateSessions] = useState<{
     [sessionDateProp: string]: AttendanceSession[];
   }>({});
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMonthSessions = async () => {
@@ -172,23 +182,41 @@ const Calendar = () => {
                                 </div>
                               </div>
                               {dateSessions[`${format(day, "yyyy-MM-dd")}`] && (
-                                <div className="bottom flex-grow h-full py-1 w-full">
-                                  {dateSessions[
-                                    `${format(day, "yyyy-MM-dd")}`
-                                  ].map((session: AttendanceSession) => (
-                                    <div
-                                      key={session.id}
-                                      style={{
-                                        backgroundColor:
-                                          eventColors[session.id % 10],
-                                      }}
-                                      className="event text-white cursor-pointer rounded px-0.5 text-sm mb-1"
-                                    >
-                                      <span className="event-name">
-                                        {formatEventDisplay(session)}
+                                <div
+                                  className="bottom cursor-pointer flex-grow h-full py-1 w-full"
+                                  onClick={() =>
+                                    setSelectedDate(format(day, "yyyy-MM-dd"))
+                                  }
+                                >
+                                  {dateSessions[`${format(day, "yyyy-MM-dd")}`]
+                                    .slice(0, 3)
+                                    .map((session: AttendanceSession) => (
+                                      <div
+                                        key={session.id}
+                                        style={{
+                                          backgroundColor:
+                                            eventColors[session.id % 10],
+                                        }}
+                                        className="event text-white rounded px-0.5 text-sm mb-1"
+                                      >
+                                        <span className="event-name">
+                                          {formatEventDisplay(session)}
+                                        </span>
+                                      </div>
+                                    ))}
+
+                                  {dateSessions[`${format(day, "yyyy-MM-dd")}`]
+                                    .length > 3 && (
+                                    <div className="event text-white rounded px-0.5 text-sm mb-1">
+                                      <span className="event-name text-gray-500 underline">
+                                        show more{" "}
+                                        {dateSessions[
+                                          `${format(day, "yyyy-MM-dd")}`
+                                        ].length - 3}{" "}
+                                        items
                                       </span>
                                     </div>
-                                  ))}
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -203,6 +231,250 @@ const Calendar = () => {
           </div>
         </div>
       </div>
+
+      <Transition.Root show={selectedDate !== null} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setSelectedDate(null)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              >
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl">
+                  <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div className="w-full">
+                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <Dialog.Title
+                          as="h3"
+                          className="text-base font-semibold leading-6 text-gray-900"
+                        >
+                          List of attendance sessions on{" "}
+                          {format(
+                            new Date(selectedDate ?? Date.now()),
+                            "dd MMM yyyy"
+                          )}
+                        </Dialog.Title>
+                        <div className="w-full mt-4">
+                          <div className="my-6">
+                            <div className="flex items-center my-3 text-base text-gray-600 cursor-pointer">
+                              <div className="w-5 mr-1">
+                                <AcademicCapIcon />
+                              </div>
+                              <span className="text-blue-600 hover:underline">
+                                Lập trình android (IT4296 - 223311)
+                              </span>
+                            </div>
+
+                            <table className="w-full text-sm text-left text-gray-500">
+                              <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+                                <tr>
+                                  <th scope="col" className="px-6 py-3">
+                                    Time
+                                  </th>
+                                  <th scope="col" className="px-6 py-3">
+                                    Type
+                                  </th>
+                                  <th scope="col" className="px-6 py-3">
+                                    Description
+                                  </th>
+                                  <th scope="col" className="px-6 py-3">
+                                    Actions
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="bg-white border-b hover:bg-gray-100">
+                                  <td className="px-6 py-4">{`${formatTimeDisplay(
+                                    8,
+                                    0
+                                  )} - ${formatTimeDisplay(9, 0)}`}</td>
+                                  <td className="px-6 py-4">All students</td>
+                                  <td className="px-6 py-4">
+                                    Regular class session
+                                  </td>
+                                  <td className="flex items-center px-6 py-4 space-x-3">
+                                    <Link
+                                      href={`/course/${1}/session/${1}/qr-code`}
+                                      target="_blank"
+                                      className="font-medium text-gray-950"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <QrCodeIcon />
+                                      </div>
+                                    </Link>
+
+                                    <Link
+                                      href={`/course/${1}/session/${1}/result`}
+                                      className="font-medium text-blue-500"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <PlayIcon />
+                                      </div>
+                                    </Link>
+
+                                    <Link
+                                      href="#"
+                                      className="font-medium text-gray-600"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <Cog8ToothIcon />
+                                      </div>
+                                    </Link>
+                                  </td>
+                                </tr>
+                                <tr className="bg-white border-b hover:bg-gray-100">
+                                  <td className="px-6 py-4">{`${formatTimeDisplay(
+                                    13,
+                                    0
+                                  )} - ${formatTimeDisplay(15, 0)}`}</td>
+                                  <td className="px-6 py-4">All students</td>
+                                  <td className="px-6 py-4">
+                                    Regular class session
+                                  </td>
+                                  <td className="flex items-center px-6 py-4 space-x-3">
+                                    <Link
+                                      href={`/course/${1}/session/${1}/qr-code`}
+                                      target="_blank"
+                                      className="font-medium text-gray-950"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <QrCodeIcon />
+                                      </div>
+                                    </Link>
+
+                                    <Link
+                                      href={`/course/${1}/session/${1}/result`}
+                                      className="font-medium text-blue-500"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <PlayIcon />
+                                      </div>
+                                    </Link>
+
+                                    <Link
+                                      href="#"
+                                      className="font-medium text-gray-600"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <Cog8ToothIcon />
+                                      </div>
+                                    </Link>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+
+                          <div className="my-6">
+                            <div className="flex items-center my-3 text-base text-gray-600 cursor-pointer">
+                              <div className="w-5 mr-1">
+                                <AcademicCapIcon />
+                              </div>
+                              <span className="text-blue-600 hover:underline">
+                                Đồ án tốt nghiệp (IT4996 - 123456)
+                              </span>
+                            </div>
+
+                            <table className="w-full text-sm text-left text-gray-500">
+                              <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+                                <tr>
+                                  <th scope="col" className="px-6 py-3">
+                                    Time
+                                  </th>
+                                  <th scope="col" className="px-6 py-3">
+                                    Type
+                                  </th>
+                                  <th scope="col" className="px-6 py-3">
+                                    Description
+                                  </th>
+                                  <th scope="col" className="px-6 py-3">
+                                    Actions
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="bg-white border-b hover:bg-gray-100">
+                                  <td className="px-6 py-4">{`${formatTimeDisplay(
+                                    8,
+                                    0
+                                  )} - ${formatTimeDisplay(9, 0)}`}</td>
+                                  <td className="px-6 py-4">All students</td>
+                                  <td className="px-6 py-4">
+                                    Regular class session
+                                  </td>
+                                  <td className="flex items-center px-6 py-4 space-x-3">
+                                    <Link
+                                      href={`/course/${1}/session/${1}/qr-code`}
+                                      target="_blank"
+                                      className="font-medium text-gray-950"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <QrCodeIcon />
+                                      </div>
+                                    </Link>
+
+                                    <Link
+                                      href={`/course/${1}/session/${1}/result`}
+                                      className="font-medium text-blue-500"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <PlayIcon />
+                                      </div>
+                                    </Link>
+
+                                    <Link
+                                      href="#"
+                                      className="font-medium text-gray-600"
+                                    >
+                                      <div className="w-5 mr-1">
+                                        <Cog8ToothIcon />
+                                      </div>
+                                    </Link>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 sm:flex items-center justify-center sm:px-6">
+                    <button
+                      type="button"
+                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                      onClick={() => setSelectedDate(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition.Root>
     </div>
   );
 };
