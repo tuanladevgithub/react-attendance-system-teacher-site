@@ -5,7 +5,7 @@ export type SessionResult = {
 
   m_attendance_status_id?: number;
 
-  record_time: Date;
+  record_time: string;
 
   ip_address: string;
 };
