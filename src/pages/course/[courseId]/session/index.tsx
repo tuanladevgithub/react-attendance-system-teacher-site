@@ -18,23 +18,10 @@ import Image from "next/image";
 import emptyDataImg from "../../../../../public/empty_data_icon.svg";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-
-const classNames = (...classes: string[]) => {
-  return classes.filter(Boolean).join(" ");
-};
+import { classNames } from "@/utils/class-name-util";
+import { formatTimeDisplay } from "@/utils/date-time-util";
 
 const filterMenus = ["All", "Months", "Weeks", "Days"];
-
-const formatTimeDisplay = (hour: number, min: number) => {
-  const type = hour < 12 ? "AM" : "PM";
-  let hourDisplay = "";
-  if (type === "AM") hourDisplay = hour < 10 ? `0${hour}` : `${hour}`;
-  else hourDisplay = hour - 12 < 10 ? `0${hour - 12}` : `${hour - 12}`;
-
-  const minDisplay = min < 10 ? `0${min}` : `${min}`;
-
-  return `${hourDisplay}:${minDisplay}${type}`;
-};
 
 const CourseAttendanceList = () => {
   const router = useRouter();

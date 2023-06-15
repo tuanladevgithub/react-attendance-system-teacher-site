@@ -1,6 +1,6 @@
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import { AttendanceSession } from "@/types/attendance-session.type";
-import { formatTimeDisplay } from "@/utils/date-time.util";
+import { formatTimeDisplay } from "@/utils/date-time-util";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   ArrowLeftCircleIcon,
@@ -37,10 +37,6 @@ const formatEventDisplay = (session: AttendanceSession) => {
   )}~${formatNumber(session.end_hour)}:${formatNumber(session.end_min)} - ${
     session.course?.subject?.subject_code
   }`;
-};
-
-const classNames = (...classes: string[]) => {
-  return classes.filter(Boolean).join(" ");
 };
 
 const eventColors = [

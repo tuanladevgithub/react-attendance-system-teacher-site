@@ -11,17 +11,7 @@ import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import Cookies from "js-cookie";
 import emptyDataImg from "../../../public/empty_data_icon.svg";
 import { format, getDay } from "date-fns";
-
-const formatTimeDisplay = (hour: number, min: number) => {
-  const type = hour < 12 ? "AM" : "PM";
-  let hourDisplay = "";
-  if (type === "AM") hourDisplay = hour < 10 ? `0${hour}` : `${hour}`;
-  else hourDisplay = hour - 12 < 10 ? `0${hour - 12}` : `${hour - 12}`;
-
-  const minDisplay = min < 10 ? `0${min}` : `${min}`;
-
-  return `${hourDisplay}:${minDisplay} ${type}`;
-};
+import { formatTimeDisplay } from "@/utils/date-time-util";
 
 const MyCourses = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

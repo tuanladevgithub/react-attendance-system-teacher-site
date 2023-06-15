@@ -23,16 +23,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import spinnerImg from "../../../public/oval.svg";
-
-const delay = (ms: number) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
-
-const classNames = (...classes: string[]) => {
-  return classes.filter(Boolean).join(" ");
-};
+import { classNames } from "@/utils/class-name-util";
+import { delay } from "@/utils/delay-util";
 
 const SignIn = () => {
   const router = useRouter();
