@@ -23,11 +23,12 @@ const MyCourses = () => {
   useEffect(() => {
     const fetchTodaySchedules = async () => {
       const { data } = await axios.get(
-        `${ATTENDANCE_API_DOMAIN}/teacher/today-schedule?today=${format(
-          new Date(),
-          "yyyy-MM-dd"
-        )}&dayOfWeek=${getDay(new Date())}`,
+        `${ATTENDANCE_API_DOMAIN}/teacher/today-schedule`,
         {
+          params: {
+            today: format(new Date(), "yyyy-MM-dd"),
+            dayOfWeek: getDay(new Date()),
+          },
           headers: {
             authorization: `Bearer ${Cookies.get("access_token")}`,
           },
