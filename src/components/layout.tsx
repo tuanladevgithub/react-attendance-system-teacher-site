@@ -22,14 +22,17 @@ export default function Layout({ children }: LayoutProps) {
 
     if (router.pathname === "/course") return ["My courses"];
 
-    if (router.pathname === "/course/[courseId]/session")
-      return ["My courses", "Attendance sessions"];
+    if (router.pathname === "/course/[courseId]")
+      return ["My courses", "Course detail"];
 
     if (router.pathname === "/course/[courseId]/add-session")
-      return ["My courses", "Attendance sessions", "Add sessions"];
+      return ["My courses", "Course detail", "Add sessions"];
+
+    if (router.pathname === "/course/[courseId]/session")
+      return ["My courses", "Course detail", "Attendance sessions"];
 
     if (router.pathname === "/course/[courseId]/session/[sessionId]/result")
-      return ["My courses", "Attendance sessions", "Results"];
+      return ["My courses", "Course detail", "Attendance sessions", "Results"];
 
     return [];
   };
@@ -53,6 +56,12 @@ export default function Layout({ children }: LayoutProps) {
             {getHeaderTitle()[2] && (
               <h2 className="text-xl mx-2 tracking-tight text-gray-700">
                 {"/ " + getHeaderTitle()[2]}
+              </h2>
+            )}
+
+            {getHeaderTitle()[3] && (
+              <h2 className="text-xl mx-2 tracking-tight text-gray-700">
+                {"/ " + getHeaderTitle()[3]}
               </h2>
             )}
           </div>

@@ -107,7 +107,7 @@ const MyCourses = () => {
           <div>
             <div className="mx-auto max-w-2xl px-4 pt-8 lg:max-w-7xl lg:px-8">
               <h2 className="text-xl font-bold tracking-tight text-gray-900">
-                {`Today schedules ~ ${format(new Date(), "eee dd/MM/yyyy")}`}
+                {`Today schedules ~ ${format(new Date(), "eee dd MMM yyyy")}`}
               </h2>
               {!todaySchedules || todaySchedules.length < 1 ? (
                 <div className="mx-auto mt-4 w-full h-fit flex justify-center items-center">
@@ -131,7 +131,7 @@ const MyCourses = () => {
                       key={schedule.id}
                       className="flex justify-between gap-x-6 p-2 hover:bg-gray-200 cursor-pointer"
                     >
-                      <Link href={`/course/${schedule.course?.id}/session`}>
+                      <Link href={`/course/${schedule.course?.id}`}>
                         <div className="flex gap-x-4">
                           <div className="min-w-0 flex-auto">
                             <p className="text-sm font-semibold leading-6 text-gray-700">
@@ -208,13 +208,13 @@ const MyCourses = () => {
                 </div>
 
                 <div className="button-group flex justify-center items-center">
-                  <button
+                  {/* <button
                     type="button"
                     onClick={openModal}
                     className="flex w-full justify-center rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     + New Course
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
@@ -248,7 +248,7 @@ const MyCourses = () => {
                         <div className="my-1 px-2 flex justify-between">
                           <div>
                             <h3 className="text-base text-blue-500">
-                              <Link href={`/course/${course.id}/session`}>
+                              <Link href={`/course/${course.id}`}>
                                 <span
                                   aria-hidden="true"
                                   className="absolute inset-0"
