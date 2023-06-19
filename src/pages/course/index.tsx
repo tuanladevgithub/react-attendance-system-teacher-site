@@ -2,7 +2,11 @@ import Layout from "@/components/layout";
 import Image from "next/image";
 import Link from "next/link";
 import courseImg from "../../../public/course-img.jpg";
-import { MagnifyingGlassIcon, UsersIcon } from "@heroicons/react/24/solid";
+import {
+  ClockIcon,
+  MagnifyingGlassIcon,
+  UsersIcon,
+} from "@heroicons/react/24/solid";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { Course, CourseSchedule } from "@/types/course.type";
@@ -125,47 +129,42 @@ const MyCourses = () => {
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 bg-white divide-y divide-dashed divide-gray-300 shadow-lg rounded-lg">
-                  {todaySchedules.map((schedule) => (
-                    <div
-                      key={schedule.id}
-                      className="flex justify-between gap-x-6 p-2 hover:bg-gray-200 cursor-pointer"
-                    >
-                      <Link href={`/course/${schedule.course?.id}`}>
-                        <div className="flex gap-x-4">
-                          <div className="min-w-0 flex-auto">
-                            <p className="text-sm font-semibold leading-6 text-gray-700">
+                <div className="bg-white shadow-lg rounded-lg my-2 p-4">
+                  <div className="px-6">
+                    <ol className="border-l border-neutral-300">
+                      {todaySchedules.map((schedule) => (
+                        <li key={schedule.id}>
+                          <div className="flex-start flex items-center pt-3">
+                            <div className="-ml-[5px] mr-3 h-[9px] w-[9px] rounded-full bg-blue-400"></div>
+                            <span className="w-fit px-2 flex items-center gap-x-2 rounded-md text-sm text-blue-600 bg-blue-200">
+                              <ClockIcon className="h-4 w-4" />
                               {formatTimeDisplay(
                                 schedule.start_hour,
                                 schedule.start_min
                               )}{" "}
-                              to{" "}
+                              -{" "}
                               {formatTimeDisplay(
                                 schedule.end_hour,
                                 schedule.end_min
                               )}
-                            </p>
-                            <p className="mt-1 truncate text-sm leading-5 text-gray-500">
-                              {schedule.course?.subject?.subject_code} -{" "}
-                              {schedule.course?.course_code}:{" "}
-                              <span className="text-blue-500">
-                                {schedule.course?.subject?.subject_name}
-                              </span>
-                            </p>
+                            </span>
                           </div>
-                        </div>
-                      </Link>
-
-                      <div className="flex flex-col items-center justify-center text-sm font-medium text-gray-700">
-                        <div className="mx-1">
-                          <UsersIcon className="h-5 w-5" aria-hidden="true" />
-                        </div>
-                        <p className="mt-1 text-xs leading-5 text-gray-500">
-                          {schedule.course?.countStudents}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                          <div className="mb-2 ml-4 mt-2 px-2 cursor-pointer rounded-md hover:bg-slate-300">
+                            <Link href={`/course/${schedule.course?.id}`}>
+                              <h3 className="mb-1.5 text-base font-medium">
+                                {schedule.course?.course_code} -{" "}
+                                {schedule.course?.subject?.subject_code} -{" "}
+                                {schedule.course?.subject?.subject_name}
+                              </h3>
+                              <p className="mb-3 text-sm text-neutral-500">
+                                Students: {schedule.course?.countStudents}
+                              </p>
+                            </Link>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 </div>
               )}
             </div>

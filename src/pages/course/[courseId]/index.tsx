@@ -49,21 +49,27 @@ const CourseDetail = () => {
           "Saturday",
         ];
 
+        const tmpSchedulesDayOfWeek: {
+          dayOfWeek: string;
+          schedules: CourseSchedule[];
+        }[] = [];
         days.forEach((dayOfWeek, idx) => {
           const dayOfWeekSchedules = schedules.filter(
             (schedule) => schedule.day_of_week == idx
           );
           if (dayOfWeekSchedules.length > 0) {
-            const newsss = schedulesByDayOfWeek;
-            newsss.push({ dayOfWeek, schedules: dayOfWeekSchedules });
-            setSchedulesByDayOfWeek(newsss);
+            tmpSchedulesDayOfWeek.push({
+              dayOfWeek,
+              schedules: dayOfWeekSchedules,
+            });
           }
         });
+        setSchedulesByDayOfWeek(tmpSchedulesDayOfWeek);
       }
     };
 
     if (courseId) fetchCourseData();
-  }, [courseId, schedulesByDayOfWeek]);
+  }, [courseId]);
 
   const handleUpdateCourse = async () => {
     const { data } = await axios.patch(
