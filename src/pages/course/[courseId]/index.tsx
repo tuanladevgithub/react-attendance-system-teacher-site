@@ -1,10 +1,17 @@
 import Layout from "@/components/layout";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
-import { Course } from "@/types/course.type";
+import { Course, CourseSchedule } from "@/types/course.type";
 import { classNames } from "@/utils/class-name-util";
+import { formatTimeDisplay } from "@/utils/date-time-util";
+import {
+  CalendarDaysIcon,
+  ClockIcon,
+  EyeIcon,
+} from "@heroicons/react/24/solid";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -15,10 +22,13 @@ const CourseDetail = () => {
   const [course, setCourse] = useState<Course>();
   const [courseDescriptionToUpdate, setCourseDescriptionToUpdate] =
     useState<string>();
+  const [schedulesByDayOfWeek, setSchedulesByDayOfWeek] = useState<
+    { dayOfWeek: string; schedules: CourseSchedule[] }[]
+  >([]);
 
   useEffect(() => {
     const fetchCourseData = async () => {
-      const { data } = await axios.get(
+      const { data } = await axios.get<Course>(
         `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}`,
         {
           headers: {
@@ -27,10 +37,33 @@ const CourseDetail = () => {
         }
       );
       setCourse(data);
+      const schedules = data.courseSchedules;
+      if (schedules) {
+        const days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+
+        days.forEach((dayOfWeek, idx) => {
+          const dayOfWeekSchedules = schedules.filter(
+            (schedule) => schedule.day_of_week == idx
+          );
+          if (dayOfWeekSchedules.length > 0) {
+            const newsss = schedulesByDayOfWeek;
+            newsss.push({ dayOfWeek, schedules: dayOfWeekSchedules });
+            setSchedulesByDayOfWeek(newsss);
+          }
+        });
+      }
     };
 
     if (courseId) fetchCourseData();
-  }, [courseId]);
+  }, [courseId, schedulesByDayOfWeek]);
 
   const handleUpdateCourse = async () => {
     const { data } = await axios.patch(
@@ -63,7 +96,7 @@ const CourseDetail = () => {
                 </div>
                 <div className="mt-6 border-t border-gray-100">
                   <dl className="divide-y divide-gray-200">
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Subject
                       </dt>
@@ -72,7 +105,7 @@ const CourseDetail = () => {
                         {course.subject?.subject_name}
                       </dd>
                     </div>
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Teacher
                       </dt>
@@ -81,7 +114,7 @@ const CourseDetail = () => {
                         {course.teacher?.last_name} {course.teacher?.first_name}
                       </dd>
                     </div>
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Course code
                       </dt>
@@ -89,7 +122,7 @@ const CourseDetail = () => {
                         {course.course_code}
                       </dd>
                     </div>
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Time
                       </dt>
@@ -98,7 +131,56 @@ const CourseDetail = () => {
                         {format(new Date(course.end_date), "dd MMM yyyy")}
                       </dd>
                     </div>
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Schedules
+                      </dt>
+                      <div className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                        {schedulesByDayOfWeek.map((dayOfWeek) => (
+                          <div key={dayOfWeek.dayOfWeek}>
+                            <span className="w-full px-2 flex items-center gap-x-2 rounded-md font-medium text-blue-600 bg-blue-200">
+                              <CalendarDaysIcon className="h-5 w-5" />
+                              {dayOfWeek.dayOfWeek}
+                            </span>
+                            <div className="my-2 px-6">
+                              <ol className="border-l border-neutral-300 dark:border-neutral-500">
+                                {dayOfWeek.schedules.map((schedule) => (
+                                  <li key={schedule.id}>
+                                    <div className="flex-start flex items-center">
+                                      <div className="-ml-[5px] mr-3 h-[9px] w-[9px] rounded-full bg-blue-400"></div>
+                                      <span className="ml-3 flex items-center gap-x-2">
+                                        <ClockIcon className="h-5 w-5 text-black" />
+                                        {formatTimeDisplay(
+                                          schedule.start_hour,
+                                          schedule.start_min
+                                        )}{" "}
+                                        -{" "}
+                                        {formatTimeDisplay(
+                                          schedule.end_hour,
+                                          schedule.end_min
+                                        )}
+                                      </span>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ol>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Attendance sessions
+                      </dt>
+                      <Link href={`/course/${course.id}/session`}>
+                        <span className="w-fit flex items-center gap-x-2 text-sm text-white rounded-md px-2 py-1 bg-amber-400 hover:bg-amber-500 ">
+                          <EyeIcon className="h-5 w-5" />
+                          Show list of attendance session
+                        </span>
+                      </Link>
+                    </div>
+                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Description
                       </dt>
