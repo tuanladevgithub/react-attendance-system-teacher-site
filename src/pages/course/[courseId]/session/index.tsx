@@ -37,7 +37,7 @@ const CourseAttendanceList = () => {
       const { data } = await axios.get<{
         course: Course;
         attendanceSessions: AttendanceSession[];
-      }>(`${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}`, {
+      }>(`${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session`, {
         headers: {
           authorization: `Bearer ${Cookies.get("access_token")}`,
         },
