@@ -111,7 +111,7 @@ const MyCourses = () => {
           <div>
             <div className="mx-auto max-w-2xl px-4 pt-8 lg:max-w-7xl lg:px-8">
               <h2 className="text-xl font-bold tracking-tight text-gray-900">
-                {`Today schedules ~ ${format(new Date(), "eee dd MMM yyyy")}`}
+                {`Today schedules ~ ${format(new Date(), "eee dd MMMM yyyy")}`}
               </h2>
               {!todaySchedules || todaySchedules.length < 1 ? (
                 <div className="mx-auto mt-4 w-full h-fit flex justify-center items-center">
