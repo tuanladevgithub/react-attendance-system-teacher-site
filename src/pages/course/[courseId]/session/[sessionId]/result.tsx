@@ -24,7 +24,7 @@ const SessionResult = () => {
         `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session/${sessionId}/result`,
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("access_token")}`,
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
           },
         }
       );

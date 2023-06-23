@@ -67,12 +67,12 @@ const Calendar = () => {
 
   useEffect(() => {
     const fetchMonthSessions = async () => {
-      if (Cookies.get("access_token")) {
+      if (Cookies.get("teacher_access_token")) {
         const { data } = await axios.get(
           `${ATTENDANCE_API_DOMAIN}/teacher/month-sessions?yearMonth=${yearMonth}`,
           {
             headers: {
-              authorization: `Bearer ${Cookies.get("access_token")}`,
+              authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
             },
           }
         );

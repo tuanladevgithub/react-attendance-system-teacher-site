@@ -43,7 +43,7 @@ const CourseDetail = () => {
         `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}`,
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("access_token")}`,
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
           },
         }
       );
@@ -88,7 +88,7 @@ const CourseDetail = () => {
         `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/student`,
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("access_token")}`,
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
           },
         }
       );
@@ -105,7 +105,7 @@ const CourseDetail = () => {
       { description: courseDescriptionToUpdate },
       {
         headers: {
-          authorization: `Bearer ${Cookies.get("access_token")}`,
+          authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
         },
       }
     );
@@ -120,7 +120,7 @@ const CourseDetail = () => {
 
     const { data } = await axios.get(url, {
       headers: {
-        authorization: `Bearer ${Cookies.get("access_token")}`,
+        authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
       },
     });
     setStudents(data);

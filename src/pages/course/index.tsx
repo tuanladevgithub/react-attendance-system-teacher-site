@@ -34,7 +34,7 @@ const MyCourses = () => {
             dayOfWeek: getDay(new Date()),
           },
           headers: {
-            authorization: `Bearer ${Cookies.get("access_token")}`,
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
           },
         }
       );
@@ -50,7 +50,7 @@ const MyCourses = () => {
         `${ATTENDANCE_API_DOMAIN}/teacher/course`,
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("access_token")}`,
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
           },
         }
       );
@@ -76,7 +76,7 @@ const MyCourses = () => {
 
     const { data } = await axios.get(url, {
       headers: {
-        authorization: `Bearer ${Cookies.get("access_token")}`,
+        authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
       },
     });
     setCourses(data);

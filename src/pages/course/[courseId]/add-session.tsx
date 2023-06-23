@@ -67,7 +67,7 @@ const AddSession = () => {
       },
       {
         headers: {
-          authorization: `Bearer ${Cookies.get("access_token")}`,
+          authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
         },
       }
     );

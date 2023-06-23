@@ -39,7 +39,7 @@ const CourseAttendanceList = () => {
         attendanceSessions: AttendanceSession[];
       }>(`${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session`, {
         headers: {
-          authorization: `Bearer ${Cookies.get("access_token")}`,
+          authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
         },
       });
       setAttendanceSessions(data.attendanceSessions);
@@ -54,7 +54,7 @@ const CourseAttendanceList = () => {
 
       const result = await axios.delete(url, {
         headers: {
-          authorization: `Bearer ${Cookies.get("access_token")}`,
+          authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
         },
       });
 

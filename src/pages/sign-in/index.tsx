@@ -52,7 +52,7 @@ const SignIn = () => {
         }
       );
 
-      Cookies.set("access_token", data.accessToken);
+      Cookies.set("teacher_access_token", data.accessToken);
     } catch (error: any) {
       setErrorOccur(error.response.data.message);
     }

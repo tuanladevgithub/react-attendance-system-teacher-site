@@ -159,7 +159,7 @@ export default function Example() {
                             // href="/sign-in"
                             onClick={(e) => {
                               e.preventDefault();
-                              Cookies.remove("access_token");
+                              Cookies.remove("teacher_access_token");
                               router.reload();
                             }}
                             className={classNames(
