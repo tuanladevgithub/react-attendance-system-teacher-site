@@ -127,9 +127,9 @@ const CourseDetail = () => {
   };
 
   return (
-    <>
+    <Layout>
       {course && (
-        <Layout>
+        <>
           <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
             <div className="bg-white shadow-lg rounded-lg my-2 p-4">
               <div>
@@ -396,9 +396,9 @@ const CourseDetail = () => {
               </div>
             </div>
           </div>
-        </Layout>
+        </>
       )}
-    </>
+    </Layout>
   );
 };
 
