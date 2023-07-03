@@ -17,6 +17,8 @@ export type AttendanceSession = {
 
   end_min: number;
 
+  overtime_minutes_for_late?: number;
+
   description?: string;
 
   course?: Course;
