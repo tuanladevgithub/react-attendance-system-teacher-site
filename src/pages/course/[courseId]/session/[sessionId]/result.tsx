@@ -1,6 +1,7 @@
 import Layout from "@/components/layout";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import { AttendanceSession } from "@/types/attendance-session.type";
+import { AttendanceStatus } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
 import axios from "axios";
 import { format } from "date-fns";
@@ -13,7 +14,22 @@ const SessionResult = () => {
   const router = useRouter();
   const courseId = router.query.courseId;
   const sessionId = router.query.sessionId;
+  const [attendanceStatus, setAttendanceStatus] = useState<AttendanceStatus[]>(
+    []
+  );
   const [students, setStudents] = useState<Student[]>([]);
+
+  useEffect(() => {
+    const fetchListOfAttendanceStatus = async () => {
+      const { data } = await axios.get<AttendanceStatus[]>(
+        `${ATTENDANCE_API_DOMAIN}/attendance-status`
+      );
+
+      setAttendanceStatus(data);
+    };
+
+    fetchListOfAttendanceStatus();
+  }, []);
 
   useEffect(() => {
     const fetchStudentsData = async () => {
@@ -54,21 +70,11 @@ const SessionResult = () => {
                 <span>Students: {students.length}</span>
               </div>
 
-              <div className="mx-2">
-                <span>Present: 0</span>
-              </div>
-
-              <div className="mx-2">
-                <span>Late: 0</span>
-              </div>
-
-              <div className="mx-2">
-                <span>Excused: 0</span>
-              </div>
-
-              <div className="mx-2">
-                <span>Absent: 0</span>
-              </div>
+              {attendanceStatus.map((status) => (
+                <div key={status.id} className="mx-2">
+                  <span>{status.title}: 0</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -76,31 +82,27 @@ const SessionResult = () => {
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-1 py-3">
                     Student ID
                   </th>
-                  <th scope="col" className="px-6 py-3">
-                    First name / Last name
+                  <th scope="col" className="px-1 py-3">
+                    Name
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-1 py-3">
                     Email address
                   </th>
-                  <th scope="col" className="px-6 py-3">
-                    P
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    E
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    L
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    A
-                  </th>
-                  <th scope="col" className="px-6 py-3">
+                  {attendanceStatus.map((status) => (
+                    <th key={status.id} scope="col" className="px-1 py-3">
+                      {status.acronym}
+                    </th>
+                  ))}
+                  <th scope="col" className="px-1 py-3">
                     Record time
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-1 py-3">
+                    Record by
+                  </th>
+                  <th scope="col" className="px-1 py-3">
                     IP address
                   </th>
                 </tr>
@@ -112,45 +114,41 @@ const SessionResult = () => {
                     key={student.id}
                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                   >
-                    <td className="px-6 py-4">{student.student_code}</td>
-                    <td className="px-6 py-4">{`${student.first_name} ${student.last_name}`}</td>
-                    <td className="px-6 py-4">{student.email}</td>
-                    <td className="px-6 py-4">
-                      <input
-                        type="radio"
-                        name={`session-result-${student.id}`}
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <input
-                        type="radio"
-                        name={`session-result-${student.id}`}
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <input
-                        type="radio"
-                        name={`session-result-${student.id}`}
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <input
-                        type="radio"
-                        name={`session-result-${student.id}`}
-                      />
-                    </td>
-                    <td className="px-6 py-4">
+                    <td className="px-1 py-4">{student.student_code}</td>
+                    <td className="px-1 py-4">{`${student.last_name} ${student.first_name}`}</td>
+                    <td className="px-1 py-4">{student.email}</td>
+                    {attendanceStatus.map((status) => (
+                      <td
+                        key={student.id + "" + status.id}
+                        className="px-1 py-4"
+                      >
+                        <input
+                          type="radio"
+                          id={`session-result-${student.id}`}
+                          name={`session-result-${student.id}`}
+                          // checked={
+                          //   student.sessionResult?.m_attendance_status_id === 1
+                          // }
+                        />
+                      </td>
+                    ))}
+                    <td className="px-1 py-4">
                       {!student.sessionResult
                         ? "..."
                         : format(
                             new Date(student.sessionResult.record_time),
-                            "MMM dd yyyy - HH:mm"
+                            "HH:mm, dd MMMM yyyy"
                           )}
                     </td>
-                    <td className="px-6 py-4 space-x-3">
+                    <td className="px-1 py-4">
                       {!student.sessionResult
                         ? "..."
-                        : student.sessionResult.ip_address}
+                        : student.sessionResult.record_by_teacher === 0
+                        ? "Student"
+                        : "You"}
+                    </td>
+                    <td className="px-1 py-4 space-x-3">
+                      {student.sessionResult?.ip_address ?? "..."}
                     </td>
                   </tr>
                 ))}
