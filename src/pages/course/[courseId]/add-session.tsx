@@ -27,7 +27,6 @@ const AddSession = () => {
   const [disclosureState, setDisclosureState] = useState<boolean[]>([
     true,
     false,
-    false,
   ]);
   const [sessionDate, setSessionDate] = useState<Date>(new Date());
   const [sessionStartHour, setSessionStartHour] = useState<string>("08");
@@ -35,16 +34,10 @@ const AddSession = () => {
   const [sessionEndHour, setSessionEndHour] = useState<string>("09");
   const [sessionEndMin, setSessionEndMin] = useState<string>("00");
   const [sessionOvertimeMinutesForLate, setSessionOvertimeMinutesForLate] =
-    useState<number>();
+    useState<number>(0);
   const [sessionPassword, setSessionPassword] = useState<string>();
   const [sessionDescription, setSessionDescription] = useState<string>();
   const [repeatUtilDate, setRepeatUtilDate] = useState<Date>(new Date());
-
-  const handleToggleBlock = (index: number) => {
-    const newDisclosureState = [...disclosureState];
-    newDisclosureState[index] = !newDisclosureState[index];
-    setDisclosureState(newDisclosureState);
-  };
 
   const handleChangeSessionDate = (date: Date) => {
     setSessionDate(date);
@@ -99,7 +92,8 @@ const AddSession = () => {
                 {addSessionError}
               </span>
             </div>
-            <div className="w-full flex justify-end text-sm cursor-pointer">
+
+            {/* <div className="w-full flex justify-end text-sm cursor-pointer">
               <p
                 onClick={() => setDisclosureState([true, true, true])}
                 className={
@@ -120,14 +114,14 @@ const AddSession = () => {
               >
                 Collapse all
               </p>
-            </div>
+            </div> */}
 
             {/* Block 1 */}
             <div className="mt-2">
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  handleToggleBlock(0);
+                  setDisclosureState([true, false]);
                 }}
                 className="flex w-full justify-between rounded-lg bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
               >
@@ -439,12 +433,10 @@ const AddSession = () => {
                           value={sessionOvertimeMinutesForLate}
                           onChange={(e) =>
                             setSessionOvertimeMinutesForLate(
-                              !e.target.value
-                                ? undefined
-                                : parseInt(e.target.value)
+                              parseInt(e.target.value)
                             )
                           }
-                          min={1}
+                          min={0}
                           className="block w-16 rounded-md border-0 py-1.5 text-sm text-gray-800 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
 
@@ -492,7 +484,7 @@ const AddSession = () => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  handleToggleBlock(1);
+                  setDisclosureState([false, true]);
                 }}
                 className="flex w-full justify-between rounded-lg bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
               >
@@ -577,33 +569,6 @@ const AddSession = () => {
               </Collapse>
             </div>
             {/* End Block 2 */}
-
-            {/* Block 3 */}
-            <div className="mt-2">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleToggleBlock(2);
-                }}
-                className="flex w-full justify-between rounded-lg bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
-              >
-                <span>STUDENT RECORDING</span>
-                <ChevronUpIcon
-                  className={`${
-                    disclosureState[2] ? "rotate-180 transform" : ""
-                  } h-5 w-5 text-gray-500`}
-                />
-              </button>
-              <Collapse
-                isOpen={disclosureState[2]}
-                className="text-sm text-gray-800"
-              >
-                <div className="px-4 pt-4 pb-2">
-                  <p>TODO:</p>
-                </div>
-              </Collapse>
-            </div>
-            {/* End Block 3 */}
 
             <div className="mt-4 px-4 py-3 flex justify-center items-center sm:px-6">
               <button

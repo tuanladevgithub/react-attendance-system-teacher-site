@@ -20,12 +20,15 @@ import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { classNames } from "@/utils/class-name-util";
 import { formatTimeDisplay } from "@/utils/date-time-util";
+import { getAttendanceSessionStatus } from "@/utils/attendance-session-util";
 
 const filterMenus = ["All", "Months", "Weeks", "Days"];
 
 const CourseAttendanceList = () => {
   const router = useRouter();
   const courseId = router.query.courseId;
+  const currentDatetime = new Date();
+
   const [currentFilter, setCurrentFilter] = useState<string>("Weeks");
   const [attendanceSessions, setAttendanceSessions] = useState<
     AttendanceSession[]
@@ -123,7 +126,7 @@ const CourseAttendanceList = () => {
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <th scope="col" className="p-4">
+                    {/* <th scope="col" className="p-4">
                       <div className="flex items-center">
                         <input
                           id="checkbox-all-search"
@@ -137,7 +140,7 @@ const CourseAttendanceList = () => {
                           checkbox
                         </label>
                       </div>
-                    </th>
+                    </th> */}
                     <th scope="col" className="px-6 py-3">
                       Date
                     </th>
@@ -151,6 +154,9 @@ const CourseAttendanceList = () => {
                       Description
                     </th>
                     <th scope="col" className="px-6 py-3">
+                      Status
+                    </th>
+                    <th scope="col" className="px-6 py-3">
                       Actions
                     </th>
                   </tr>
@@ -161,7 +167,7 @@ const CourseAttendanceList = () => {
                       key={session.id}
                       className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                     >
-                      <td className="w-4 p-4">
+                      {/* <td className="w-4 p-4">
                         <div className="flex items-center">
                           <input
                             id="checkbox-table-search-1"
@@ -175,59 +181,72 @@ const CourseAttendanceList = () => {
                             checkbox
                           </label>
                         </div>
-                      </td>
-                      <td className="w-44 px-6 py-4">
+                      </td> */}
+                      <td className="px-6 py-4">
                         {format(
                           new Date(session.session_date),
-                          "eee dd MMM yyyy"
+                          "eee, dd MMMM yyyy"
                         )}
                       </td>
-                      <td className="w-44 px-6 py-4">{`${formatTimeDisplay(
+                      <td className="px-6 py-4">{`${formatTimeDisplay(
                         session.start_hour,
                         session.start_min
                       )} - ${formatTimeDisplay(
                         session.end_hour,
                         session.end_min
                       )}`}</td>
-                      <td className="w-36 px-6 py-4">All students</td>
+                      <td className="px-6 py-4">All students</td>
                       <td className="px-6 py-4">{session.description}</td>
-                      <td className="flex items-center px-6 py-4 space-x-3">
-                        <Link
-                          href={`/course/${courseId}/session/${session.id}/qr-code`}
-                          target="_blank"
-                          className="font-medium text-gray-950"
-                        >
-                          <div className="w-5 mr-1">
-                            <QrCodeIcon />
-                          </div>
-                        </Link>
-
-                        <Link
-                          href={`/course/${courseId}/session/${session.id}/result`}
-                          className="font-medium text-blue-500"
-                        >
-                          <div className="w-5 mr-1">
-                            <PlayIcon />
-                          </div>
-                        </Link>
-
-                        <Link href="#" className="font-medium text-gray-600">
-                          <div className="w-5 mr-1">
-                            <Cog8ToothIcon />
-                          </div>
-                        </Link>
-
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setDeleteSessionId(session.id);
+                      <td className="px-6 py-4">
+                        {" "}
+                        <span
+                          className="rounded-full text-white px-3 py-0.5"
+                          style={{
+                            backgroundColor: getAttendanceSessionStatus(
+                              session,
+                              currentDatetime
+                            ).color,
                           }}
-                          className="font-medium text-red-400"
                         >
-                          <div className="w-5 mr-1">
-                            <TrashIcon />
-                          </div>
-                        </button>
+                          {
+                            getAttendanceSessionStatus(session, currentDatetime)
+                              .status
+                          }
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-3">
+                          <Link
+                            href={`/course/${courseId}/session/${session.id}/qr-code`}
+                            target="_blank"
+                            className="font-medium text-gray-950"
+                          >
+                            <div className="w-5 mr-1">
+                              <QrCodeIcon />
+                            </div>
+                          </Link>
+
+                          <Link
+                            href={`/course/${courseId}/session/${session.id}/result`}
+                            className="font-medium text-blue-500"
+                          >
+                            <div className="w-5 mr-1">
+                              <PlayIcon />
+                            </div>
+                          </Link>
+
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setDeleteSessionId(session.id);
+                            }}
+                            className="font-medium text-red-400"
+                          >
+                            <div className="w-5 mr-1">
+                              <TrashIcon />
+                            </div>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

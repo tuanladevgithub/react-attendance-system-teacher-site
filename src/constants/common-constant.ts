@@ -97,3 +97,5 @@ export const LIST_DAYS_OF_WEEK = [
   "Saturday",
   "Sunday",
 ];
+
+export const STUDENT_SITE_DOMAIN = "http://192.168.112.105:4003";
