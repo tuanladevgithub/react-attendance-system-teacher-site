@@ -110,57 +110,83 @@ const SessionResult = () => {
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-1 py-3">
+                  <th scope="col" className="px-2 py-3">
                     Student ID
                   </th>
-                  <th scope="col" className="px-1 py-3">
+                  <th scope="col" className="px-2 py-3">
                     Name
                   </th>
-                  <th scope="col" className="px-1 py-3">
+                  <th scope="col" className="px-2 py-3">
                     Email address
                   </th>
                   {attendanceStatus.map((status) => (
-                    <th key={status.id} scope="col" className="px-1 py-3">
+                    <th key={status.id} scope="col" className="px-2 py-3">
                       {status.acronym}
                     </th>
                   ))}
-                  <th scope="col" className="px-1 py-3">
+                  <th scope="col" className="px-2 py-3">
                     Record time
                   </th>
-                  <th scope="col" className="px-1 py-3">
+                  <th scope="col" className="px-2 py-3">
                     Record by
                   </th>
-                  <th scope="col" className="px-1 py-3">
+                  <th scope="col" className="px-2 py-3">
                     IP address
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-                {students.map((student) => (
+                {students.map((student, studentIdx) => (
                   <tr
                     key={student.id}
                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                   >
-                    <td className="px-1 py-4">{student.student_code}</td>
-                    <td className="px-1 py-4">{`${student.last_name} ${student.first_name}`}</td>
-                    <td className="px-1 py-4">{student.email}</td>
+                    <td className="px-2 py-4">{student.student_code}</td>
+                    <td className="px-2 py-4">{`${student.last_name} ${student.first_name}`}</td>
+                    <td className="px-2 py-4">{student.email}</td>
                     {attendanceStatus.map((status) => (
                       <td
                         key={student.id + "" + status.id}
-                        className="px-1 py-4"
+                        className="px-2 py-4"
                       >
-                        <input
-                          type="radio"
-                          id={`session-result-${student.id}`}
-                          name={`session-result-${student.id}`}
-                          // checked={
-                          //   student.sessionResult?.m_attendance_status_id === 1
-                          // }
-                        />
+                        <div
+                          id={`session-result-${student.id}-${status.id}`}
+                          style={
+                            student.sessionResult?.m_attendance_status_id ===
+                            status.id
+                              ? {
+                                  borderWidth: "4px",
+                                  borderColor: "rgb(79 70 229)",
+                                }
+                              : {
+                                  borderWidth: "1px",
+                                  borderColor: "rgb(156 163 175)",
+                                  cursor: "pointer",
+                                }
+                          }
+                          className="w-4 h-4 rounded-full"
+                          onClick={(e) => {
+                            attendanceStatus.forEach((statusItem) => {
+                              const rmEle = document.getElementById(
+                                `session-result-${student.id}-${statusItem.id}`
+                              );
+                              if (rmEle) {
+                                rmEle.style.borderWidth = "1px";
+                                rmEle.style.borderColor = "rgb(156 163 175)";
+                                rmEle.style.cursor = "pointer";
+                              }
+                            });
+
+                            e.currentTarget.style.borderWidth = "4px";
+                            e.currentTarget.style.borderColor =
+                              "rgb(79 70 229)";
+                            e.currentTarget.style.cursor = "default";
+                          }}
+                        ></div>
                       </td>
                     ))}
-                    <td className="px-1 py-4">
+                    <td className="px-2 py-4">
                       {!student.sessionResult
                         ? "..."
                         : format(
@@ -168,14 +194,14 @@ const SessionResult = () => {
                             "HH:mm, dd MMMM yyyy"
                           )}
                     </td>
-                    <td className="px-1 py-4">
+                    <td className="px-2 py-4">
                       {!student.sessionResult
                         ? "..."
                         : student.sessionResult.record_by_teacher === 0
                         ? "Student"
                         : "You"}
                     </td>
-                    <td className="px-1 py-4 space-x-3">
+                    <td className="px-2 py-4 space-x-3">
                       {student.sessionResult?.ip_address ?? "..."}
                     </td>
                   </tr>
