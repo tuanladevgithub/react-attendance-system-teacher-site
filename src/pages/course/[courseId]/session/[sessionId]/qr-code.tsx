@@ -182,7 +182,7 @@ const SessionQRCode = () => {
                         ),
                         {
                           minutes:
-                            attendanceSession.overtime_minutes_for_late || 0,
+                            attendanceSession.overtime_minutes_for_late ?? 0,
                         }
                       ),
                       new Date()
