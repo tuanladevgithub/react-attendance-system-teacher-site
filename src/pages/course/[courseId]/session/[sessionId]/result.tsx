@@ -18,6 +18,9 @@ const SessionResult = () => {
     []
   );
   const [students, setStudents] = useState<Student[]>([]);
+  const [countStatus, setCountStatus] = useState<
+    { attendanceStatusId: number; count: number }[]
+  >([]);
 
   useEffect(() => {
     const fetchListOfAttendanceStatus = async () => {
@@ -46,6 +49,26 @@ const SessionResult = () => {
       );
 
       setStudents(data.students);
+
+      const tmp: { attendanceStatusId: number; count: number }[] = [];
+      data.students.forEach((student) => {
+        if (student.sessionResult) {
+          const attendanceStatusId =
+            student.sessionResult.m_attendance_status_id;
+          if (attendanceStatusId) {
+            const idx = tmp.findIndex(
+              (item) => item.attendanceStatusId === attendanceStatusId
+            );
+
+            if (idx !== -1) {
+              tmp[idx] = { ...tmp[idx], count: tmp[idx].count + 1 };
+            } else {
+              tmp.push({ attendanceStatusId, count: 1 });
+            }
+          }
+        }
+      });
+      setCountStatus(tmp);
     };
 
     if (courseId && sessionId) fetchStudentsData();
@@ -72,7 +95,12 @@ const SessionResult = () => {
 
               {attendanceStatus.map((status) => (
                 <div key={status.id} className="mx-2">
-                  <span>{status.title}: 0</span>
+                  <span>
+                    {status.title}:{" "}
+                    {countStatus.find(
+                      (item) => item.attendanceStatusId === status.id
+                    )?.count ?? 0}
+                  </span>
                 </div>
               ))}
             </div>
