@@ -1,5 +1,5 @@
 import { AttendanceSession } from "@/types/attendance-session.type";
-import { parse, set } from "date-fns";
+import { add, isAfter, isBefore, parse, set } from "date-fns";
 
 export const getAttendanceSessionStatus = (
   session: AttendanceSession,
@@ -25,31 +25,33 @@ export const getAttendanceSessionStatus = (
     }
   );
 
-  if (current.getTime() < sessionDatetimeStart.getTime())
+  if (isBefore(current, sessionDatetimeStart))
     return { status: "Upcoming", color: "rgb(250 204 21)" };
 
   if (
-    current.getTime() >= sessionDatetimeStart.getTime() &&
-    current.getTime() <= sessionDatetimeEnd.getTime()
+    !isBefore(current, sessionDatetimeStart) &&
+    !isAfter(current, sessionDatetimeEnd)
   )
     return { status: "Ongoing", color: "rgb(34 211 238)" };
 
   if (
-    current.getTime() > sessionDatetimeEnd.getTime() &&
-    current.getTime() <=
-      sessionDatetimeEnd.getTime() +
-        (!session.overtime_minutes_for_late
-          ? 0
-          : session.overtime_minutes_for_late * 60 * 1000)
+    isAfter(current, sessionDatetimeEnd) &&
+    !isAfter(
+      current,
+      add(sessionDatetimeEnd, {
+        minutes: session.overtime_minutes_for_late ?? 0,
+      })
+    )
   )
     return { status: "Overtime", color: "rgb(129 140 248)" };
 
   if (
-    current.getTime() >
-    sessionDatetimeEnd.getTime() +
-      (!session.overtime_minutes_for_late
-        ? 0
-        : session.overtime_minutes_for_late * 60 * 1000)
+    isAfter(
+      current,
+      add(sessionDatetimeEnd, {
+        minutes: session.overtime_minutes_for_late ?? 0,
+      })
+    )
   )
     return { status: "Finished", color: "rgb(74 222 128)" };
 

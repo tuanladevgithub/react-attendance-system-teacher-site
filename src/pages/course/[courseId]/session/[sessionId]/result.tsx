@@ -4,8 +4,9 @@ import { socket } from "@/lib/socket-client";
 import { AttendanceSession } from "@/types/attendance-session.type";
 import { AttendanceStatus, SessionResult } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
+import { getAttendanceSessionStatus } from "@/utils/attendance-session-util";
 import axios from "axios";
-import { format } from "date-fns";
+import { add, format, formatDistanceStrict, parse } from "date-fns";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -16,9 +17,12 @@ const SessionResultPage = () => {
   const courseId = router.query.courseId;
   const sessionId = router.query.sessionId;
 
+  const [countTime, setCountTime] = useState<number>(0);
   const [attendanceStatus, setAttendanceStatus] = useState<AttendanceStatus[]>(
     []
   );
+  const [attendanceSession, setAttendanceSession] =
+    useState<AttendanceSession>();
   const [students, setStudents] = useState<Student[]>([]);
   const [countStatus, setCountStatus] = useState<
     { attendanceStatusId: number; count: number }[]
@@ -35,6 +39,27 @@ const SessionResultPage = () => {
 
     fetchListOfAttendanceStatus();
   }, []);
+
+  useEffect(() => {
+    const fetchSessionData = async () => {
+      try {
+        const { data } = await axios.get<AttendanceSession>(
+          `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session/${sessionId}`,
+          {
+            headers: {
+              authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
+            },
+          }
+        );
+
+        setAttendanceSession(data);
+      } catch (error) {
+        setAttendanceSession(undefined);
+      }
+    };
+
+    if (courseId && sessionId) fetchSessionData();
+  }, [courseId, sessionId]);
 
   useEffect(() => {
     const fetchStudentsData = async () => {
@@ -120,19 +145,70 @@ const SessionResultPage = () => {
     }
   }, [courseId, sessionId]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCountTime(countTime + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [countTime]);
+
   return (
     <>
       <Layout>
-        {courseId && sessionId && (
+        {attendanceSession && (
           <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
-            <div className="flex justify-between items-center bg-gray-200 w-full h-16 px-4 rounded-t-lg border-solid border bor">
+            <div className="flex justify-end m-2">
+              <button
+                type="button"
+                onClick={() => router.push(`/course/${courseId}/session`)}
+                className="flex w-fit justify-center rounded-md bg-indigo-600 px-3 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Back to list session
+              </button>
+            </div>
+            <div className="flex justify-between items-center bg-gray-200 w-full h-16 px-2 rounded-t-lg border-solid border bor">
               <div>
-                <Link
-                  href={`/course/${courseId}/session`}
-                  className="flex w-full justify-center rounded-md bg-gray-700 px-3 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Back to list session
-                </Link>
+                <div className="flex items-center gap-x-2 text-sm">
+                  <span>Session status:</span>
+                  <span
+                    className="rounded-full text-white px-3 py-0.5"
+                    style={{
+                      backgroundColor: getAttendanceSessionStatus(
+                        attendanceSession,
+                        new Date()
+                      ).color,
+                    }}
+                  >
+                    {
+                      getAttendanceSessionStatus(attendanceSession, new Date())
+                        .status
+                    }
+                  </span>
+                  {["Ongoing", "Overtime"].includes(
+                    getAttendanceSessionStatus(attendanceSession, new Date())
+                      .status
+                  ) && (
+                    <span>
+                      about{" "}
+                      {formatDistanceStrict(
+                        add(
+                          parse(
+                            `${attendanceSession.session_date} ${attendanceSession.end_hour}:${attendanceSession.end_min}:0`,
+                            "yyyy-MM-dd H:m:s",
+                            new Date()
+                          ),
+                          {
+                            minutes:
+                              attendanceSession.overtime_minutes_for_late ?? 0,
+                          }
+                        ),
+                        new Date()
+                      )}{" "}
+                      remaining (including overtime).
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="flex text-sm">
@@ -184,7 +260,7 @@ const SessionResultPage = () => {
                 </thead>
 
                 <tbody>
-                  {students.map((student, studentIdx) => (
+                  {students.map((student) => (
                     <tr
                       key={student.id}
                       className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"

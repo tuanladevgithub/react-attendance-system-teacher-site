@@ -153,9 +153,9 @@ const CourseAttendanceList = () => {
                     <th scope="col" className="px-6 py-3">
                       Description
                     </th>
-                    <th scope="col" className="px-6 py-3">
+                    {/* <th scope="col" className="px-6 py-3">
                       Status
-                    </th>
+                    </th> */}
                     <th scope="col" className="px-6 py-3">
                       Actions
                     </th>
@@ -197,7 +197,7 @@ const CourseAttendanceList = () => {
                       )}`}</td>
                       <td className="px-6 py-4">All students</td>
                       <td className="px-6 py-4">{session.description}</td>
-                      <td className="px-6 py-4">
+                      {/* <td className="px-6 py-4">
                         {" "}
                         <span
                           className="rounded-full text-white px-3 py-0.5"
@@ -213,7 +213,7 @@ const CourseAttendanceList = () => {
                               .status
                           }
                         </span>
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
                           <Link

@@ -134,7 +134,7 @@ const SessionQRCode = () => {
                 .status === "Upcoming" ? (
               <>
                 <span>
-                  The session will begin{" "}
+                  The session will begin in about{" "}
                   {formatDistanceStrict(
                     parse(
                       `${attendanceSession.session_date} ${attendanceSession.start_hour}:${attendanceSession.start_min}:0`,
@@ -173,6 +173,7 @@ const SessionQRCode = () => {
                     }
                   </span>
                   <span>
+                    about{" "}
                     {formatDistanceStrict(
                       add(
                         parse(
@@ -187,7 +188,7 @@ const SessionQRCode = () => {
                       ),
                       new Date()
                     )}{" "}
-                    left.
+                    remaining (including overtime).
                   </span>
                 </div>
                 <div className="text-center">
