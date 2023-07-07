@@ -5,12 +5,64 @@ import { AttendanceSession } from "@/types/attendance-session.type";
 import { AttendanceStatus, SessionResult } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
 import { getAttendanceSessionStatus } from "@/utils/attendance-session-util";
+import { classNames } from "@/utils/class-name-util";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import axios from "axios";
 import { add, format, formatDistanceStrict, parse } from "date-fns";
 import Cookies from "js-cookie";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
+socket.on("student_take_record_session", (result: SessionResult) => {
+  //
+  const statusDOMChange = document.getElementById(
+    `session-result-status-${result.t_student_id}-${result.m_attendance_status_id}`
+  );
+  if (statusDOMChange) {
+    statusDOMChange.style.borderWidth = "4px";
+    statusDOMChange.style.borderColor = "rgb(79 70 229)";
+    statusDOMChange.style.cursor = "default";
+  }
+
+  //
+  const timeDOMChange = document.getElementById(
+    `session-result-time-${result.t_student_id}`
+  );
+  if (timeDOMChange) {
+    timeDOMChange.textContent = format(
+      new Date(result.record_time),
+      "HH:mm, dd MMMM yyyy"
+    );
+  }
+
+  //
+  const recordByDOMChange = document.getElementById(
+    `session-result-record_by-${result.t_student_id}`
+  );
+  if (recordByDOMChange) {
+    recordByDOMChange.textContent =
+      result.record_by_teacher === 1 ? "You" : "Student";
+  }
+
+  //
+  const ipAddressDOMChange = document.getElementById(
+    `session-result-ip_address-${result.t_student_id}`
+  );
+  if (ipAddressDOMChange) {
+    ipAddressDOMChange.textContent = result.ip_address ?? "...";
+  }
+
+  //
+  const updateCountStatus = document.getElementById(
+    `count-session-status-${result.m_attendance_status_id}`
+  );
+  if (updateCountStatus) {
+    updateCountStatus.textContent = (
+      Number(updateCountStatus.textContent) + 1
+    ).toString();
+  }
+});
 
 const SessionResultPage = () => {
   const router = useRouter();
@@ -26,6 +78,9 @@ const SessionResultPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [countStatus, setCountStatus] = useState<
     { attendanceStatusId: number; count: number }[]
+  >([]);
+  const [listToUpdate, setListToUpdate] = useState<
+    { studentId: number; statusId: number }[]
   >([]);
 
   useEffect(() => {
@@ -99,45 +154,6 @@ const SessionResultPage = () => {
 
       socket.connect();
       socket.emit("join_session_room", sessionId);
-      socket.on("student_take_record_session", (result: SessionResult) => {
-        //
-        const statusDOMChange = document.getElementById(
-          `session-result-status-${result.t_student_id}-${result.m_attendance_status_id}`
-        );
-        if (statusDOMChange) {
-          statusDOMChange.style.borderWidth = "4px";
-          statusDOMChange.style.borderColor = "rgb(79 70 229)";
-          statusDOMChange.style.cursor = "default";
-        }
-
-        //
-        const timeDOMChange = document.getElementById(
-          `session-result-time-${result.t_student_id}`
-        );
-        if (timeDOMChange) {
-          timeDOMChange.textContent = format(
-            new Date(result.record_time),
-            "HH:mm, dd MMMM yyyy"
-          );
-        }
-
-        //
-        const recordByDOMChange = document.getElementById(
-          `session-result-record_by-${result.t_student_id}`
-        );
-        if (recordByDOMChange) {
-          recordByDOMChange.textContent =
-            result.record_by_teacher === 1 ? "You" : "Student";
-        }
-
-        //
-        const ipAddressDOMChange = document.getElementById(
-          `session-result-ip_address-${result.t_student_id}`
-        );
-        if (ipAddressDOMChange) {
-          ipAddressDOMChange.textContent = result.ip_address ?? "...";
-        }
-      });
     };
 
     if (courseId && sessionId) {
@@ -153,11 +169,39 @@ const SessionResultPage = () => {
     return () => clearInterval(interval);
   }, [countTime]);
 
+  const handleBulkUpdateStatus = async () => {
+    if (listToUpdate.length > 0) {
+      // update:
+      const { data } = await axios.put(
+        `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session/${sessionId}/bulk-update-status`,
+        { listToUpdate },
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
+          },
+        }
+      );
+
+      // reload:
+      router.reload();
+    }
+  };
+
   return (
     <>
       <Layout>
         {attendanceSession && (
           <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
+            {["Ongoing", "Overtime"].includes(
+              getAttendanceSessionStatus(attendanceSession, new Date()).status
+            ) && (
+              <span className="text-sm italic text-red-500">
+                {
+                  "Note: You can't update a session manually while it's during official attendance time."
+                }
+              </span>
+            )}
+
             <div className="flex justify-end m-2">
               <button
                 type="button"
@@ -167,6 +211,7 @@ const SessionResultPage = () => {
                 Back to list session
               </button>
             </div>
+
             <div className="flex justify-between items-center bg-gray-200 w-full h-16 px-2 rounded-t-lg border-solid border bor">
               <div>
                 <div className="flex items-center gap-x-2 text-sm">
@@ -218,8 +263,8 @@ const SessionResultPage = () => {
 
                 {attendanceStatus.map((status) => (
                   <div key={status.id} className="mx-2">
-                    <span>
-                      {status.title}:{" "}
+                    <span>{status.title}: </span>
+                    <span id={`count-session-status-${status.id}`}>
                       {countStatus.find(
                         (item) => item.attendanceStatusId === status.id
                       )?.count ?? 0}
@@ -291,21 +336,63 @@ const SessionResultPage = () => {
                             }
                             className="w-4 h-4 rounded-full"
                             onClick={(e) => {
-                              attendanceStatus.forEach((statusItem) => {
-                                const rmEle = document.getElementById(
-                                  `session-result-status-${student.id}-${statusItem.id}`
+                              if (
+                                ["Ongoing", "Overtime"].includes(
+                                  getAttendanceSessionStatus(
+                                    attendanceSession,
+                                    new Date()
+                                  ).status
+                                )
+                              ) {
+                                toast.error(
+                                  "Cannot be changed in the official time!",
+                                  {
+                                    position: "bottom-right",
+                                    autoClose: 2000,
+                                    hideProgressBar: false,
+                                    closeOnClick: true,
+                                    pauseOnHover: true,
+                                    draggable: true,
+                                    theme: "light",
+                                  }
                                 );
-                                if (rmEle) {
-                                  rmEle.style.borderWidth = "1px";
-                                  rmEle.style.borderColor = "rgb(156 163 175)";
-                                  rmEle.style.cursor = "pointer";
-                                }
-                              });
+                              } else {
+                                attendanceStatus.forEach((statusItem) => {
+                                  const rmEle = document.getElementById(
+                                    `session-result-status-${student.id}-${statusItem.id}`
+                                  );
+                                  if (rmEle) {
+                                    rmEle.style.borderWidth = "1px";
+                                    rmEle.style.borderColor =
+                                      "rgb(156 163 175)";
+                                    rmEle.style.cursor = "pointer";
+                                  }
+                                });
 
-                              e.currentTarget.style.borderWidth = "4px";
-                              e.currentTarget.style.borderColor =
-                                "rgb(79 70 229)";
-                              e.currentTarget.style.cursor = "default";
+                                e.currentTarget.style.borderWidth = "4px";
+                                e.currentTarget.style.borderColor =
+                                  "rgb(79 70 229)";
+                                e.currentTarget.style.cursor = "default";
+
+                                //
+                                const tmpListToUpdate = listToUpdate;
+                                const idx = tmpListToUpdate.findIndex(
+                                  (item) => item.studentId === student.id
+                                );
+
+                                if (idx !== -1) {
+                                  tmpListToUpdate[idx] = {
+                                    ...tmpListToUpdate[idx],
+                                    statusId: status.id,
+                                  };
+                                } else {
+                                  tmpListToUpdate.push({
+                                    studentId: student.id,
+                                    statusId: status.id,
+                                  });
+                                }
+                                setListToUpdate(tmpListToUpdate);
+                              }
                             }}
                           ></div>
                         </td>
@@ -338,6 +425,37 @@ const SessionResultPage = () => {
                   ))}
                 </tbody>
               </table>
+              <div className="flex justify-center items-center py-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      !["Ongoing", "Overtime"].includes(
+                        getAttendanceSessionStatus(
+                          attendanceSession,
+                          new Date()
+                        ).status
+                      )
+                    ) {
+                      handleBulkUpdateStatus();
+                    }
+                  }}
+                  className="flex w-fit justify-center rounded-md px-3 py-1 text-sm font-semibold leading-6 text-white shadow-sm"
+                  style={
+                    ["Ongoing", "Overtime"].includes(
+                      getAttendanceSessionStatus(attendanceSession, new Date())
+                        .status
+                    )
+                      ? {
+                          backgroundColor: "rgb(107, 114, 128)",
+                          cursor: "not-allowed",
+                        }
+                      : { backgroundColor: "rgb(22, 163, 74)" }
+                  }
+                >
+                  Update
+                </button>
+              </div>
             </div>
           </div>
         )}
