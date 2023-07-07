@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import useUser from "@/lib/use-user";
 import { useEffect } from "react";
 import Navbar from "./navbar";
+import { socket } from "@/lib/socket-client";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -14,6 +15,10 @@ export default function Layout({ children }: LayoutProps) {
   useEffect(() => {
     if (!teacher && error) {
       router.replace("/sign-in");
+    }
+
+    if (router.pathname !== "/course/[courseId]/session/[sessionId]/result") {
+      if (socket.connected) socket.disconnect();
     }
   }, [router, teacher, error]);
 
