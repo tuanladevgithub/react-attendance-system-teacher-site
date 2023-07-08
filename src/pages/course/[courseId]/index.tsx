@@ -4,9 +4,10 @@ import { Course, CourseSchedule } from "@/types/course.type";
 import { Student } from "@/types/student.type";
 import { classNames } from "@/utils/class-name-util";
 import { formatTimeDisplay } from "@/utils/date-time-util";
+import { ClockIcon } from "@heroicons/react/24/outline";
 import {
   CalendarDaysIcon,
-  ClockIcon,
+  // ClockIcon,
   DevicePhoneMobileIcon,
   EnvelopeIcon,
   EyeIcon,
@@ -140,7 +141,7 @@ const CourseDetail = () => {
                 </div>
                 <div className="mt-6 border-t border-gray-100">
                   <dl className="divide-y divide-gray-200">
-                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Subject
                       </dt>
@@ -149,7 +150,7 @@ const CourseDetail = () => {
                         {course.subject?.subject_name}
                       </dd>
                     </div>
-                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Course code
                       </dt>
@@ -157,7 +158,7 @@ const CourseDetail = () => {
                         {course.course_code}
                       </dd>
                     </div>
-                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Time
                       </dt>
@@ -166,7 +167,7 @@ const CourseDetail = () => {
                         {format(new Date(course.end_date), "dd MMMM yyyy")}
                       </dd>
                     </div>
-                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Schedules
                       </dt>
@@ -204,7 +205,7 @@ const CourseDetail = () => {
                         ))}
                       </div>
                     </div>
-                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Attendance sessions
                       </dt>
@@ -215,7 +216,7 @@ const CourseDetail = () => {
                         </span>
                       </Link>
                     </div>
-                    <div className="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">
                         Description
                       </dt>

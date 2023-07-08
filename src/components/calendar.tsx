@@ -299,11 +299,13 @@ const Calendar = () => {
                                 <div className="w-5 mr-1">
                                   <AcademicCapIcon />
                                 </div>
-                                <span className="text-blue-600 hover:underline">
-                                  {item.course?.subject?.subject_name} (
-                                  {item.course?.subject?.subject_code} -{" "}
-                                  {item.course?.course_code})
-                                </span>
+                                <Link href={`/course/${item.course?.id}`}>
+                                  <span className="text-blue-600 hover:underline">
+                                    {item.course?.subject?.subject_name} (
+                                    {item.course?.subject?.subject_code} -{" "}
+                                    {item.course?.course_code})
+                                  </span>
+                                </Link>
                               </div>
 
                               <table className="w-full text-sm text-left text-gray-500">
