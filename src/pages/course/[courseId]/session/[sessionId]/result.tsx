@@ -5,8 +5,6 @@ import { AttendanceSession } from "@/types/attendance-session.type";
 import { AttendanceStatus, SessionResult } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
 import { getAttendanceSessionStatus } from "@/utils/attendance-session-util";
-import { classNames } from "@/utils/class-name-util";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import axios from "axios";
 import { add, format, formatDistanceStrict, parse } from "date-fns";
 import Cookies from "js-cookie";
@@ -445,7 +443,7 @@ const SessionResultPage = () => {
                     ["Ongoing", "Overtime"].includes(
                       getAttendanceSessionStatus(attendanceSession, new Date())
                         .status
-                    )
+                    ) || listToUpdate.length === 0
                       ? {
                           backgroundColor: "rgb(107, 114, 128)",
                           cursor: "not-allowed",

@@ -1,5 +1,6 @@
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import { AttendanceSession } from "@/types/attendance-session.type";
+import { Course } from "@/types/course.type";
 import { formatTimeDisplay } from "@/utils/date-time-util";
 import { Dialog, Transition } from "@headlessui/react";
 import {
@@ -106,6 +107,26 @@ const Calendar = () => {
     const firstDayOfNextMonth = add(firstDayOfMonth, { months: 1 });
     setCurrMonthToDisplay(format(firstDayOfNextMonth, "MMM-yyyy"));
     setYearMonth(format(firstDayOfNextMonth, "yyyy-MM"));
+  };
+
+  const getSessionsOfSelectedDate = () => {
+    if (!selectedDate || !dateSessions[`${selectedDate}`]) return [];
+
+    const sessions = dateSessions[`${selectedDate}`];
+    const tmp: { course?: Course; sessions: AttendanceSession[] }[] = [];
+    sessions.forEach((session) => {
+      const idx = tmp.findIndex(
+        (item) => item.course?.id === session.course?.id
+      );
+
+      if (idx !== -1) {
+        tmp[idx] = { ...tmp[idx], sessions: [...tmp[idx].sessions, session] };
+      } else {
+        tmp.push({ course: session.course, sessions: [session] });
+      }
+    });
+
+    return tmp;
   };
 
   return (
@@ -272,186 +293,90 @@ const Calendar = () => {
                           )}
                         </Dialog.Title>
                         <div className="w-full mt-4">
-                          <div className="my-6">
-                            <div className="flex items-center my-3 text-base text-gray-600 cursor-pointer">
-                              <div className="w-5 mr-1">
-                                <AcademicCapIcon />
+                          {getSessionsOfSelectedDate().map((item) => (
+                            <div key={item.course?.id} className="my-6">
+                              <div className="flex items-center my-3 text-base text-gray-600 cursor-pointer">
+                                <div className="w-5 mr-1">
+                                  <AcademicCapIcon />
+                                </div>
+                                <span className="text-blue-600 hover:underline">
+                                  {item.course?.subject?.subject_name} (
+                                  {item.course?.subject?.subject_code} -{" "}
+                                  {item.course?.course_code})
+                                </span>
                               </div>
-                              <span className="text-blue-600 hover:underline">
-                                Lập trình android (IT4296 - 223311)
-                              </span>
+
+                              <table className="w-full text-sm text-left text-gray-500">
+                                <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+                                  <tr>
+                                    <th scope="col" className="px-6 py-3">
+                                      Time
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                      Overtime
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                      Type
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                      Description
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                      Actions
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {item.sessions.map((session) => (
+                                    <tr
+                                      key={session.id}
+                                      className="bg-white border-b hover:bg-gray-100"
+                                    >
+                                      <td className="px-6 py-4">{`${formatTimeDisplay(
+                                        session.start_hour,
+                                        session.start_min
+                                      )} - ${formatTimeDisplay(
+                                        session.end_hour,
+                                        session.end_min
+                                      )}`}</td>
+                                      <td className="px-6 py-4">
+                                        {session.overtime_minutes_for_late ??
+                                          "..."}{" "}
+                                        mins
+                                      </td>
+                                      <td className="px-6 py-4">
+                                        All students
+                                      </td>
+                                      <td className="px-6 py-4">
+                                        {session.description}
+                                      </td>
+                                      <td className="flex items-center px-6 py-4 space-x-3">
+                                        <Link
+                                          href={`/course/${session.t_course_id}/session/${session.id}/qr-code`}
+                                          target="_blank"
+                                          className="font-medium text-gray-950"
+                                        >
+                                          <div className="w-5 mr-1">
+                                            <QrCodeIcon />
+                                          </div>
+                                        </Link>
+
+                                        <Link
+                                          href={`/course/${session.t_course_id}/session/${session.id}/result`}
+                                          target="_blank"
+                                          className="font-medium text-blue-500"
+                                        >
+                                          <div className="w-5 mr-1">
+                                            <PlayIcon />
+                                          </div>
+                                        </Link>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
-
-                            <table className="w-full text-sm text-left text-gray-500">
-                              <thead className="text-xs text-gray-700 uppercase bg-gray-200">
-                                <tr>
-                                  <th scope="col" className="px-6 py-3">
-                                    Time
-                                  </th>
-                                  <th scope="col" className="px-6 py-3">
-                                    Type
-                                  </th>
-                                  <th scope="col" className="px-6 py-3">
-                                    Description
-                                  </th>
-                                  <th scope="col" className="px-6 py-3">
-                                    Actions
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr className="bg-white border-b hover:bg-gray-100">
-                                  <td className="px-6 py-4">{`${formatTimeDisplay(
-                                    8,
-                                    0
-                                  )} - ${formatTimeDisplay(9, 0)}`}</td>
-                                  <td className="px-6 py-4">All students</td>
-                                  <td className="px-6 py-4">
-                                    Regular class session
-                                  </td>
-                                  <td className="flex items-center px-6 py-4 space-x-3">
-                                    <Link
-                                      href={`/course/${1}/session/${1}/qr-code`}
-                                      target="_blank"
-                                      className="font-medium text-gray-950"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <QrCodeIcon />
-                                      </div>
-                                    </Link>
-
-                                    <Link
-                                      href={`/course/${1}/session/${1}/result`}
-                                      className="font-medium text-blue-500"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <PlayIcon />
-                                      </div>
-                                    </Link>
-
-                                    <Link
-                                      href="#"
-                                      className="font-medium text-gray-600"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <Cog8ToothIcon />
-                                      </div>
-                                    </Link>
-                                  </td>
-                                </tr>
-                                <tr className="bg-white border-b hover:bg-gray-100">
-                                  <td className="px-6 py-4">{`${formatTimeDisplay(
-                                    13,
-                                    0
-                                  )} - ${formatTimeDisplay(15, 0)}`}</td>
-                                  <td className="px-6 py-4">All students</td>
-                                  <td className="px-6 py-4">
-                                    Regular class session
-                                  </td>
-                                  <td className="flex items-center px-6 py-4 space-x-3">
-                                    <Link
-                                      href={`/course/${1}/session/${1}/qr-code`}
-                                      target="_blank"
-                                      className="font-medium text-gray-950"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <QrCodeIcon />
-                                      </div>
-                                    </Link>
-
-                                    <Link
-                                      href={`/course/${1}/session/${1}/result`}
-                                      className="font-medium text-blue-500"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <PlayIcon />
-                                      </div>
-                                    </Link>
-
-                                    <Link
-                                      href="#"
-                                      className="font-medium text-gray-600"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <Cog8ToothIcon />
-                                      </div>
-                                    </Link>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-
-                          <div className="my-6">
-                            <div className="flex items-center my-3 text-base text-gray-600 cursor-pointer">
-                              <div className="w-5 mr-1">
-                                <AcademicCapIcon />
-                              </div>
-                              <span className="text-blue-600 hover:underline">
-                                Đồ án tốt nghiệp (IT4996 - 123456)
-                              </span>
-                            </div>
-
-                            <table className="w-full text-sm text-left text-gray-500">
-                              <thead className="text-xs text-gray-700 uppercase bg-gray-200">
-                                <tr>
-                                  <th scope="col" className="px-6 py-3">
-                                    Time
-                                  </th>
-                                  <th scope="col" className="px-6 py-3">
-                                    Type
-                                  </th>
-                                  <th scope="col" className="px-6 py-3">
-                                    Description
-                                  </th>
-                                  <th scope="col" className="px-6 py-3">
-                                    Actions
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr className="bg-white border-b hover:bg-gray-100">
-                                  <td className="px-6 py-4">{`${formatTimeDisplay(
-                                    8,
-                                    0
-                                  )} - ${formatTimeDisplay(9, 0)}`}</td>
-                                  <td className="px-6 py-4">All students</td>
-                                  <td className="px-6 py-4">
-                                    Regular class session
-                                  </td>
-                                  <td className="flex items-center px-6 py-4 space-x-3">
-                                    <Link
-                                      href={`/course/${1}/session/${1}/qr-code`}
-                                      target="_blank"
-                                      className="font-medium text-gray-950"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <QrCodeIcon />
-                                      </div>
-                                    </Link>
-
-                                    <Link
-                                      href={`/course/${1}/session/${1}/result`}
-                                      className="font-medium text-blue-500"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <PlayIcon />
-                                      </div>
-                                    </Link>
-
-                                    <Link
-                                      href="#"
-                                      className="font-medium text-gray-600"
-                                    >
-                                      <div className="w-5 mr-1">
-                                        <Cog8ToothIcon />
-                                      </div>
-                                    </Link>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </div>
