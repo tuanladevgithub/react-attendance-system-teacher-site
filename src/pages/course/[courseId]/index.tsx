@@ -310,7 +310,6 @@ const CourseDetail = () => {
                     + Add student
                   </button>
                 </div>
-                s
               </div>
 
               <div className="relative overflow-x-auto shadow-md">
