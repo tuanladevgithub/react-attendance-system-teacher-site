@@ -62,6 +62,10 @@ socket.on("student_take_record_session", (result: SessionResult) => {
   }
 });
 
+socket.on("session_end", () => {
+  location.reload();
+});
+
 const SessionResultPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId;
