@@ -342,9 +342,9 @@ const Calendar = () => {
                                         session.end_min
                                       )}`}</td>
                                       <td className="px-6 py-4">
-                                        {session.overtime_minutes_for_late ??
-                                          "..."}{" "}
-                                        mins
+                                        {!session.overtime_minutes_for_late
+                                          ? "..."
+                                          : `${session.overtime_minutes_for_late} mins`}
                                       </td>
                                       <td className="px-6 py-4">
                                         All students

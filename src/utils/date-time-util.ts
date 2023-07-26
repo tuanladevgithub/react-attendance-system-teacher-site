@@ -8,3 +8,11 @@ export const formatTimeDisplay = (hour: number, min: number) => {
 
   return `${hourDisplay}:${minDisplay}${type}`;
 };
+
+export const formatTimeDisplay24Hours = (hour: number, min: number) => {
+  const hourDisplay = hour < 10 ? `0${hour}` : `${hour}`;
+
+  const minDisplay = min < 10 ? `0${min}` : `${min}`;
+
+  return `${hourDisplay}:${minDisplay}`;
+};

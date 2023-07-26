@@ -302,14 +302,14 @@ const CourseDetail = () => {
                     Search
                   </button>
                 </div>
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <button
                     type="button"
                     className="inline-flex justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     + Add student
                   </button>
-                </div>
+                </div> */}
               </div>
 
               <div className="relative overflow-x-auto shadow-md">
@@ -334,9 +334,9 @@ const CourseDetail = () => {
                       <th scope="col" className="px-6 py-3">
                         Age
                       </th>
-                      <th scope="col" className="px-6 py-3">
+                      {/* <th scope="col" className="px-6 py-3">
                         Actions
-                      </th>
+                      </th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -363,7 +363,7 @@ const CourseDetail = () => {
                           </div>
                         </td>
                         <td className="px-6 py-3">{student.age ?? "..."}</td>
-                        <td className="flex items-center px-6 py-4 space-x-3">
+                        {/* <td className="flex items-center px-6 py-4 space-x-3">
                           <Link
                             href={`#`}
                             target="_blank"
@@ -388,7 +388,7 @@ const CourseDetail = () => {
                               <TrashIcon />
                             </div>
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

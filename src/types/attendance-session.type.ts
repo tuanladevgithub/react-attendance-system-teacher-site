@@ -1,4 +1,5 @@
 import { Course } from "./course.type";
+import { SessionResult } from "./session-result.type";
 
 export type AttendanceSession = {
   id: number;
@@ -22,4 +23,6 @@ export type AttendanceSession = {
   description?: string;
 
   course?: Course;
+
+  attendanceResults?: SessionResult[];
 };
