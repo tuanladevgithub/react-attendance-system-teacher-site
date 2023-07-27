@@ -88,13 +88,21 @@ const CourseAttendanceList = () => {
       <Layout>
         <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
           <div className="flex justify-between items-center bg-gray-200 w-full h-16 px-4 rounded-t-lg border-solid border bor">
-            <div>
+            <div className="flex space-x-2">
               <Link
                 href={`/course/${courseId}/add-session`}
                 type="button"
-                className="flex w-full justify-center rounded-md bg-green-600 px-3 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex justify-center rounded-md bg-green-600 px-3 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 + Add session
+              </Link>
+
+              <Link
+                href={`/course/${courseId}/attendance-history-report`}
+                type="button"
+                className="flex justify-center rounded-md bg-orange-400 px-3 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                View attendance history
               </Link>
             </div>
 
