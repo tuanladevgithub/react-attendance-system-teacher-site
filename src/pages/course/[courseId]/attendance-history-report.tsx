@@ -289,7 +289,7 @@ const AttendanceHistoryReportPage = () => {
                               <div
                                 className={classNames(
                                   "h-full px-2",
-                                  attendanceRate >= 80
+                                  attendanceRate >= course.attendance_rate
                                     ? "bg-green-500"
                                     : "bg-red-500"
                                 )}
