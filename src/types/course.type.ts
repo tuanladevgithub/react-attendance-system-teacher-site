@@ -34,6 +34,12 @@ export type Course = {
 
   end_date: string;
 
+  rotate_qrcode_interval_seconds: number;
+
+  prevent_student_use_same_address: number;
+
+  attendance_rate: number;
+
   countStudents?: number;
 
   subject?: Subject;

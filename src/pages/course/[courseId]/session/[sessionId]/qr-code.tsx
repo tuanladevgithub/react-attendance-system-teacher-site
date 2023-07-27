@@ -11,19 +11,36 @@ import * as qrcode from "qrcode";
 import { useEffect, useState } from "react";
 import clockImg from "../../../../../../public/clock.svg";
 import { add, formatDistanceStrict, parse } from "date-fns";
-
-const COUNT_DOWN_SECONDS = 60;
+import { Course } from "@/types/course.type";
 
 const SessionQRCode = () => {
   const router = useRouter();
   const courseId = router.query.courseId;
   const sessionId = router.query.sessionId;
 
+  const [course, setCourse] = useState<Course>();
   const [attendanceSession, setAttendanceSession] =
     useState<AttendanceSession>();
-  const [countDown, setCountDown] = useState<number>(COUNT_DOWN_SECONDS);
+  const [countDown, setCountDown] = useState<number>();
   const [qrData, setQRData] = useState<string>();
   const [qrImageSrc, setQRImageSrc] = useState<string>();
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      const { data } = await axios.get<Course>(
+        `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}`,
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
+          },
+        }
+      );
+      setCourse(data);
+      setCountDown(data.rotate_qrcode_interval_seconds);
+    };
+
+    if (courseId) fetchCourseData();
+  }, [courseId]);
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -68,28 +85,32 @@ const SessionQRCode = () => {
   }, [courseId, sessionId]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (countDown > 0) {
-        setCountDown(countDown - 1);
-      } else {
-        axios
-          .get<string>(
-            `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/session/${sessionId}/qr-code`,
-            {
-              headers: {
-                authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
-              },
-            }
-          )
-          .then((rs) => {
-            setQRData(rs.data);
-            setCountDown(COUNT_DOWN_SECONDS);
-          });
-      }
-    }, 1000);
+    if (course && countDown !== undefined) {
+      const interval = setInterval(() => {
+        if (countDown > 0) {
+          setCountDown(countDown - 1);
+        } else {
+          axios
+            .get<string>(
+              `${ATTENDANCE_API_DOMAIN}/teacher/course/${course.id}/session/${sessionId}/qr-code`,
+              {
+                headers: {
+                  authorization: `Bearer ${Cookies.get(
+                    "teacher_access_token"
+                  )}`,
+                },
+              }
+            )
+            .then((rs) => {
+              setQRData(rs.data);
+              setCountDown(course.rotate_qrcode_interval_seconds);
+            });
+        }
+      }, 1000);
 
-    return () => clearInterval(interval);
-  }, [countDown, courseId, sessionId]);
+      return () => clearInterval(interval);
+    }
+  }, [countDown, course, sessionId]);
 
   useEffect(() => {
     const updateQRCode = async () => {
