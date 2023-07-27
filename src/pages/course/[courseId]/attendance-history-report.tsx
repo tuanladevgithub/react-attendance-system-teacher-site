@@ -1,6 +1,7 @@
 import Layout from "@/components/layout";
 import { ATTENDANCE_API_DOMAIN } from "@/constants/axios-constant";
 import { AttendanceSession } from "@/types/attendance-session.type";
+import { Course } from "@/types/course.type";
 import { AttendanceStatus } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
 import { formatTimeDisplay24Hours } from "@/utils/date-time-util";
@@ -17,6 +18,7 @@ const AttendanceHistoryReportPage = () => {
   const [attendanceStatus, setAttendanceStatus] = useState<AttendanceStatus[]>(
     []
   );
+  const [course, setCourse] = useState<Course>();
   const [students, setStudents] = useState<Student[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [allowShowDetail, setAllowShowDetail] = useState<boolean>(false);
@@ -32,6 +34,22 @@ const AttendanceHistoryReportPage = () => {
 
     fetchListOfAttendanceStatus();
   }, []);
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      const { data } = await axios.get<Course>(
+        `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}`,
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
+          },
+        }
+      );
+      setCourse(data);
+    };
+
+    if (courseId) fetchCourseData();
+  }, [courseId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,12 +72,35 @@ const AttendanceHistoryReportPage = () => {
     if (courseId) fetchData();
   }, [courseId]);
 
-  const handleExportCSV = async () => {};
+  const handleExportCSV = async () => {
+    const { data } = await axios.get(
+      `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}/export-history`,
+      {
+        headers: {
+          authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
+        },
+        responseType: "blob",
+      }
+    );
+
+    const href = URL.createObjectURL(data);
+
+    const anchorElement = document.createElement("a");
+
+    anchorElement.href = href;
+    anchorElement.download = `${course?.subject?.subject_code}_${course?.course_code}.csv`;
+
+    document.body.appendChild(anchorElement);
+    anchorElement.click();
+
+    document.body.removeChild(anchorElement);
+    URL.revokeObjectURL(href);
+  };
 
   return (
     <>
       <Layout>
-        {courseId && (
+        {course && (
           <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
             <div className="flex justify-start items-center bg-gray-200 w-full h-16 px-2 rounded-t-lg border-solid border bor">
               <div>
