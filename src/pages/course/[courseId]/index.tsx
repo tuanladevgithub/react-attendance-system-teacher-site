@@ -7,6 +7,7 @@ import { formatTimeDisplay } from "@/utils/date-time-util";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import {
   CalendarDaysIcon,
+  CheckIcon,
   // ClockIcon,
   DevicePhoneMobileIcon,
   EnvelopeIcon,
@@ -31,6 +32,12 @@ const CourseDetail = () => {
   const [course, setCourse] = useState<Course>();
   const [courseDescriptionToUpdate, setCourseDescriptionToUpdate] =
     useState<string>();
+  const [courseQRRotateSecondsToUpdate, setCourseQRRotateSecondsToUpdate] =
+    useState<number>();
+  const [coursePreventSameIpToUpdate, setCoursePreventSameIpToUpdate] =
+    useState<0 | 1>();
+  const [courseAttendanceRateToUpdate, setCourseAttendanceRateToUpdate] =
+    useState<number>();
   const [schedulesByDayOfWeek, setSchedulesByDayOfWeek] = useState<
     { dayOfWeek: string; schedules: CourseSchedule[] }[]
   >([]);
@@ -103,7 +110,12 @@ const CourseDetail = () => {
   const handleUpdateCourse = async () => {
     const { data } = await axios.patch(
       `${ATTENDANCE_API_DOMAIN}/teacher/course/${courseId}`,
-      { description: courseDescriptionToUpdate },
+      {
+        description: courseDescriptionToUpdate,
+        rotate_qrcode_interval_seconds: courseQRRotateSecondsToUpdate,
+        prevent_student_use_same_address: coursePreventSameIpToUpdate,
+        attendance_rate: courseAttendanceRateToUpdate,
+      },
       {
         headers: {
           authorization: `Bearer ${Cookies.get("teacher_access_token")}`,
@@ -229,15 +241,106 @@ const CourseDetail = () => {
                           e.preventDefault();
                           setCourseDescriptionToUpdate(e.target.value);
                         }}
-                        className="mt-1 text-sm block w-full rounded-md border border-dashed py-1.5 text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-0 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 sm:mt-0"
+                        className="mt-1 text-sm block w-full rounded-md border border-gray-300 py-1.5 text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-0 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 sm:mt-0"
                       />
+                    </div>
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Settings
+                      </dt>
+                      <div className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                        <div className="flex items-center gap-x-2 mb-2">
+                          <input
+                            type="number"
+                            defaultValue={course.rotate_qrcode_interval_seconds}
+                            onChange={(e) =>
+                              setCourseQRRotateSecondsToUpdate(
+                                parseInt(e.target.value)
+                              )
+                            }
+                            min={15}
+                            className="block w-16 rounded-md border-0 py-1.5 text-sm text-gray-800 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          />
+                          <span>seconds to rotate QR code</span>
+                        </div>
+
+                        <div className="flex items-center gap-x-2 mb-2">
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => {
+                              if (coursePreventSameIpToUpdate === undefined)
+                                setCoursePreventSameIpToUpdate(
+                                  course.prevent_student_use_same_address === 1
+                                    ? 0
+                                    : 1
+                                );
+                              else
+                                setCoursePreventSameIpToUpdate(
+                                  coursePreventSameIpToUpdate === 1 ? 0 : 1
+                                );
+                            }}
+                          >
+                            {coursePreventSameIpToUpdate === undefined && (
+                              <>
+                                {course.prevent_student_use_same_address ===
+                                  1 && (
+                                  <div className="w-4 h-4 flex items-center justify-center rounded-md bg-blue-500 text-white">
+                                    <CheckIcon className="w-3" />
+                                  </div>
+                                )}
+                                {course.prevent_student_use_same_address ===
+                                  0 && (
+                                  <div className="w-4 h-4 flex items-center justify-center rounded-md border border-gray-300"></div>
+                                )}
+                              </>
+                            )}
+
+                            {coursePreventSameIpToUpdate !== undefined && (
+                              <>
+                                {coursePreventSameIpToUpdate === 1 && (
+                                  <div className="w-4 h-4 flex items-center justify-center rounded-md bg-blue-500 text-white">
+                                    <CheckIcon className="w-3" />
+                                  </div>
+                                )}
+                                {coursePreventSameIpToUpdate === 0 && (
+                                  <div className="w-4 h-4 flex items-center justify-center rounded-md border border-gray-300"></div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          <span>
+                            prevent student record with same ip address.
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-x-2 mb-2">
+                          <input
+                            type="number"
+                            defaultValue={course.attendance_rate}
+                            onChange={(e) =>
+                              setCourseAttendanceRateToUpdate(
+                                parseInt(e.target.value)
+                              )
+                            }
+                            min={1}
+                            className="block w-16 rounded-md border-0 py-1.5 text-sm text-gray-800 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          />
+                          <span>
+                            percent (%) - attendance rate for a student to be
+                            considered pass.
+                          </span>
+                        </div>
+                      </div>
                     </div>
                     <div className="px-4 pt-4 flex items-center justify-end">
                       <button
                         type="button"
                         onClick={handleUpdateCourse}
                         className={classNames(
-                          courseDescriptionToUpdate === undefined
+                          courseDescriptionToUpdate === undefined &&
+                            courseQRRotateSecondsToUpdate === undefined &&
+                            coursePreventSameIpToUpdate === undefined &&
+                            courseAttendanceRateToUpdate === undefined
                             ? "bg-gray-500 cursor-not-allowed"
                             : "bg-green-600 hover:bg-green-500",
                           "flex w-auto justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm"
