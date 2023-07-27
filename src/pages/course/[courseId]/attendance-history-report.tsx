@@ -4,10 +4,12 @@ import { AttendanceSession } from "@/types/attendance-session.type";
 import { Course } from "@/types/course.type";
 import { AttendanceStatus } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
+import { classNames } from "@/utils/class-name-util";
 import { formatTimeDisplay24Hours } from "@/utils/date-time-util";
 import axios from "axios";
-import { format } from "date-fns";
+import { add, format, isBefore } from "date-fns";
 import Cookies from "js-cookie";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -21,6 +23,9 @@ const AttendanceHistoryReportPage = () => {
   const [course, setCourse] = useState<Course>();
   const [students, setStudents] = useState<Student[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+  const [finishedSessions, setFinishedSessions] = useState<AttendanceSession[]>(
+    []
+  );
   const [allowShowDetail, setAllowShowDetail] = useState<boolean>(false);
 
   useEffect(() => {
@@ -67,6 +72,24 @@ const AttendanceHistoryReportPage = () => {
 
       setStudents(data.students);
       setSessions(data.sessions);
+      setFinishedSessions(
+        data.sessions.filter((session) => {
+          const sessionEndTime = add(
+            new Date(
+              `${session.session_date}T${
+                session.end_hour < 10
+                  ? `0${session.end_hour}`
+                  : session.end_hour
+              }:${
+                session.end_min < 10 ? `0${session.end_min}` : session.end_min
+              }:00`
+            ),
+            { minutes: session.overtime_minutes_for_late }
+          );
+
+          return isBefore(sessionEndTime, new Date());
+        })
+      );
     };
 
     if (courseId) fetchData();
@@ -98,9 +121,63 @@ const AttendanceHistoryReportPage = () => {
   };
 
   return (
-    <>
-      <Layout>
-        {course && (
+    <Layout>
+      {course && (
+        <>
+          <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
+            <div className="bg-white shadow-xl rounded-lg my-2 p-4">
+              <div>
+                <div className="px-4 sm:px-0">
+                  <h3 className="text-xl font-semibold leading-7 text-gray-900">
+                    Summary
+                  </h3>
+                </div>
+                <div className="mt-6 border-t border-gray-100">
+                  <dl className="divide-y divide-gray-200">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Subject
+                      </dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                        {course.subject?.subject_code} -{" "}
+                        {course.subject?.subject_name}
+                      </dd>
+                    </div>
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Course code
+                      </dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                        <Link
+                          href={`/course/${course.id}`}
+                          className="text-blue-500 underline"
+                        >
+                          {course.course_code}
+                        </Link>
+                      </dd>
+                    </div>
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Total sessions
+                      </dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                        {sessions.length} sessions
+                      </dd>
+                    </div>
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">
+                        Finished sessions
+                      </dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                        {finishedSessions.length} sessions
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
             <div className="flex justify-start items-center bg-gray-200 w-full h-16 px-2 rounded-t-lg border-solid border bor">
               <div>
@@ -118,10 +195,10 @@ const AttendanceHistoryReportPage = () => {
               <table className="w-full text-sm text-left text-gray-500">
                 <thead className="text-xs text-gray-700 bg-gray-50">
                   <tr>
-                    <th className="px-2 py-3 whitespace-nowrap">STUDENT ID</th>
-                    <th className="px-2 py-3 whitespace-nowrap">NAME</th>
-                    <th className="px-2 py-3 whitespace-nowrap">EMAIL</th>
-                    <th className="px-2 py-3 whitespace-nowrap">OVERVIEW</th>
+                    <th className="px-2 py-3 whitespace-nowrap">Student ID</th>
+                    <th className="px-2 py-3 whitespace-nowrap">Name</th>
+                    <th className="px-2 py-3 whitespace-nowrap">Email</th>
+                    <th className="px-2 py-3 whitespace-nowrap">Overview</th>
                     {!allowShowDetail && (
                       <td className="px-2 py-3 whitespace-nowrap">
                         <div>
@@ -175,6 +252,25 @@ const AttendanceHistoryReportPage = () => {
                       overviewStatus.push(`${status.acronym}:${count}`);
                     });
 
+                    const countAbsentSession = finishedSessions.filter(
+                      (session) => {
+                        const studentRs = session.attendanceResults?.find(
+                          (result) => result.t_student_id === student.id
+                        );
+
+                        if (!studentRs) return true;
+                        else
+                          return (
+                            !studentRs.m_attendance_status_id ||
+                            studentRs.m_attendance_status_id === 4
+                          );
+                      }
+                    ).length;
+
+                    const attendanceRate =
+                      100 -
+                      (countAbsentSession / finishedSessions.length) * 100;
+
                     return (
                       <tr
                         key={student.id}
@@ -188,7 +284,23 @@ const AttendanceHistoryReportPage = () => {
                           {student.email}
                         </td>
                         <td className="px-2 py-4 whitespace-nowrap">
-                          {overviewStatus.join(" ")}
+                          <div className="flex items-center gap-x-2">
+                            {finishedSessions.length > 0 && (
+                              <div
+                                className={classNames(
+                                  "h-full px-2",
+                                  attendanceRate >= 80
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
+                                )}
+                              >
+                                <span className="text-white">
+                                  {attendanceRate.toFixed(1)}%
+                                </span>
+                              </div>
+                            )}
+                            <span>{overviewStatus.join(" ")}</span>
+                          </div>
                         </td>
                         {!allowShowDetail && (
                           <td className="px-2 py-4 whitespace-nowrap">_</td>
@@ -212,9 +324,9 @@ const AttendanceHistoryReportPage = () => {
               </table>
             </div>
           </div>
-        )}
-      </Layout>
-    </>
+        </>
+      )}
+    </Layout>
   );
 };
 
