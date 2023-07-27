@@ -178,7 +178,25 @@ const AttendanceHistoryReportPage = () => {
             </div>
           </div>
 
+          {/* <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
+            
+          </div> */}
+
           <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8">
+            <div className="text-sm text-red-400 italic mb-2">
+              <span>*Notice the symbols of attendance status:</span>
+              <ul
+                role="list"
+                className="ml-5 marker:text-red-400 list-disc pl-5 space-y-1"
+              >
+                {attendanceStatus.map((status) => (
+                  <li key={status.id}>
+                    {status.acronym} - {status.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div className="flex justify-start items-center bg-gray-200 w-full h-16 px-2 rounded-t-lg border-solid border bor">
               <div>
                 <button
