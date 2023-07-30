@@ -13,17 +13,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { Cell, Legend, ResponsiveContainer, PieChart, Pie } from "recharts";
 
 const AttendanceHistoryReportPage = () => {
   const router = useRouter();
@@ -42,6 +32,7 @@ const AttendanceHistoryReportPage = () => {
   const [finishedSessionsForChart, setFinishedSessionsForChart] = useState<
     AttendanceSession[]
   >([]);
+  const [studentPassRatio, setStudentPassRatio] = useState<number>(0);
 
   useEffect(() => {
     const fetchListOfAttendanceStatus = async () => {
@@ -105,6 +96,7 @@ const AttendanceHistoryReportPage = () => {
       });
       setFinishedSessions(finished);
 
+      //
       if (currentFilter === "Month") {
         const from = format(startOfMonth(new Date()), "yyyy-MM-dd");
         const to = format(endOfMonth(new Date()), "yyyy-MM-dd");
@@ -118,10 +110,29 @@ const AttendanceHistoryReportPage = () => {
       } else {
         setFinishedSessionsForChart(finished);
       }
+
+      //
+      const studentPass = data.students.filter((student) => {
+        const countSessionPass = finished.filter((session) =>
+          [1, 2, 3].includes(
+            session.attendanceResults?.find(
+              (result) => result.t_student_id === student.id
+            )?.m_attendance_status_id ?? 0
+          )
+        ).length;
+
+        return (
+          (countSessionPass / finished.length) * 100 >=
+          (course?.attendance_rate ?? 0)
+        );
+      });
+      setStudentPassRatio(
+        Math.round((studentPass.length / students.length) * 1000) / 10
+      );
     };
 
     if (courseId) fetchData();
-  }, [courseId, currentFilter]);
+  }, [courseId, currentFilter, course?.attendance_rate, students.length]);
 
   const handleExportCSV = async () => {
     const { data } = await axios.get(
@@ -146,6 +157,40 @@ const AttendanceHistoryReportPage = () => {
 
     document.body.removeChild(anchorElement);
     URL.revokeObjectURL(href);
+  };
+
+  const abc = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index,
+  }: {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+    index: number;
+  }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
+    const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
   };
 
   return (
@@ -227,7 +272,7 @@ const AttendanceHistoryReportPage = () => {
                   </div>
                 </div>
 
-                <div className="chart-group w-full bg-white p-4">
+                <div className="chart-group w-full h-[400px] bg-white p-4">
                   <div className="overflow-x-auto grid grid-rows-[36px,250px,40px]">
                     <div className="flex">
                       <div className="w-10 h-full"></div>
@@ -313,12 +358,55 @@ const AttendanceHistoryReportPage = () => {
                 <div className="flex justify-between items-center bg-gray-200 w-full px-2 py-2 rounded-t-lg border-solid border bor">
                   <div className="px-4 sm:px-0">
                     <h3 className="text-xl font-semibold leading-7 text-gray-900">
-                      Report
+                      Percentage of students pass and fail
                     </h3>
                   </div>
                 </div>
 
-                <div className="chart-group w-full bg-white p-2"></div>
+                <div className="chart-group w-full h-[400px] bg-white p-4">
+                  <div className="w-full h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            {
+                              name: `Attend ${course.attendance_rate}% of sessions or more`,
+                              value: studentPassRatio,
+                            },
+                            {
+                              name: `Attend less than ${course.attendance_rate}% of sessions`,
+                              value: 100 - studentPassRatio,
+                            },
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={abc}
+                          outerRadius={110}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {[
+                            {
+                              name: `Attend ${course.attendance_rate}% of sessions or more`,
+                              value: studentPassRatio,
+                            },
+                            {
+                              name: `Attend less than ${course.attendance_rate}% of sessions`,
+                              value: 100 - studentPassRatio,
+                            },
+                          ].map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={["#0088FE", "#FF8042"][index]}
+                            />
+                          ))}
+                        </Pie>
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
