@@ -6,6 +6,10 @@ import { AttendanceStatus } from "@/types/session-result.type";
 import { Student } from "@/types/student.type";
 import { classNames } from "@/utils/class-name-util";
 import { formatTimeDisplay24Hours } from "@/utils/date-time-util";
+import {
+  ChartPieIcon,
+  PresentationChartBarIcon,
+} from "@heroicons/react/24/outline";
 import axios from "axios";
 import { endOfMonth } from "date-fns";
 import { add, format, isBefore, startOfMonth } from "date-fns";
@@ -248,7 +252,8 @@ const AttendanceHistoryReportPage = () => {
             <div className="text-gray-700 lg:grid lg:grid-cols-2 lg:gap-4 lg:px-0">
               <div className="shadow-lg text-sm lg:col-span-1">
                 <div className="flex justify-between items-center bg-gray-200 w-full px-2 py-2 rounded-t-lg border-solid border bor">
-                  <div className="px-4 sm:px-0">
+                  <div className="px-4 sm:px-0 flex items-center gap-x-2">
+                    <PresentationChartBarIcon className="w-5 h-5" />
                     <h3 className="text-xl font-semibold leading-7 text-gray-900">
                       Attendance ratio per session
                     </h3>
@@ -356,7 +361,8 @@ const AttendanceHistoryReportPage = () => {
 
               <div className="mt-1 shadow-lg text-sm lg:col-span-1 lg:mt-0">
                 <div className="flex justify-between items-center bg-gray-200 w-full px-2 py-2 rounded-t-lg border-solid border bor">
-                  <div className="px-4 sm:px-0">
+                  <div className="px-4 sm:px-0 flex items-center gap-x-2">
+                    <ChartPieIcon className="w-5 h-5" />
                     <h3 className="text-xl font-semibold leading-7 text-gray-900">
                       Percentage of students pass and fail
                     </h3>
