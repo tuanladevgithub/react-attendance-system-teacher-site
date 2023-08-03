@@ -70,6 +70,7 @@ const ResetPassword = () => {
             src={logoImg}
             alt="Logo HUST"
           />
+
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Reset your password
           </h2>
