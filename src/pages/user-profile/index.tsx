@@ -39,14 +39,19 @@ const UserProfile = () => {
   }, []);
 
   const handleUpdateInfo = async () => {
-    if (firstNameUpdate || lastNameUpdate) {
+    if (
+      firstNameUpdate ||
+      lastNameUpdate ||
+      phoneNumberUpdate !== undefined ||
+      descriptionUpdate !== undefined
+    ) {
       await axios.patch(
         `${ATTENDANCE_API_DOMAIN}/teacher/update-info`,
         {
           first_name: firstNameUpdate,
           last_name: lastNameUpdate,
-          phone_number: phoneNumberUpdate,
-          description: descriptionUpdate,
+          phone_number: phoneNumberUpdate === "" ? null : phoneNumberUpdate,
+          description: descriptionUpdate === "" ? null : descriptionUpdate,
         },
         {
           headers: {
@@ -123,7 +128,7 @@ const UserProfile = () => {
                           htmlFor="first-name"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          First name
+                          First name <span className="text-red-500">*</span>
                         </label>
                         <div className="mt-2">
                           <input
@@ -145,7 +150,7 @@ const UserProfile = () => {
                           htmlFor="last-name"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Last name
+                          Last name <span className="text-red-500">*</span>
                         </label>
                         <div className="mt-2">
                           <input
@@ -167,7 +172,7 @@ const UserProfile = () => {
                           htmlFor="email"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Email address
+                          Email address <span className="text-red-500">*</span>
                         </label>
                         <div className="mt-2">
                           <input
@@ -193,7 +198,10 @@ const UserProfile = () => {
                             id="phone_number"
                             name="phone_number"
                             type="text"
-                            value={phoneNumberUpdate ?? teacher.phone_number}
+                            placeholder="Ex: 0123456789"
+                            value={
+                              phoneNumberUpdate ?? teacher.phone_number ?? ""
+                            }
                             onChange={(e) => {
                               e.preventDefault();
                               setPhoneNumberUpdate(e.target.value);
@@ -208,7 +216,7 @@ const UserProfile = () => {
                           htmlFor="teacher_code"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Teacher code
+                          Teacher code <span className="text-red-500">*</span>
                         </label>
                         <div className="mt-2">
                           <input
@@ -227,7 +235,7 @@ const UserProfile = () => {
                           htmlFor="department"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Department
+                          Department <span className="text-red-500">*</span>
                         </label>
                         <div className="mt-2">
                           <select
@@ -257,11 +265,14 @@ const UserProfile = () => {
                             id="description"
                             name="description"
                             rows={3}
-                            value={descriptionUpdate ?? teacher.description}
+                            value={
+                              descriptionUpdate ?? teacher.description ?? ""
+                            }
                             onChange={(e) => {
                               e.preventDefault();
                               setDescriptionUpdate(e.target.value);
                             }}
+                            placeholder="Ex: Now he is a Senior Lecturer at the Department of Computer Science, School of Information and Communication Technology (SoICT), Hanoi University of Science and Technology (HUST)."
                             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                           />
                         </div>
@@ -285,8 +296,8 @@ const UserProfile = () => {
                     className={classNames(
                       !firstNameUpdate &&
                         !lastNameUpdate &&
-                        !phoneNumberUpdate &&
-                        !descriptionUpdate
+                        phoneNumberUpdate === undefined &&
+                        descriptionUpdate === undefined
                         ? "hidden"
                         : "",
                       "text-sm font-semibold leading-6 text-gray-900"
@@ -300,8 +311,8 @@ const UserProfile = () => {
                     className={classNames(
                       !firstNameUpdate &&
                         !lastNameUpdate &&
-                        !phoneNumberUpdate &&
-                        !descriptionUpdate
+                        phoneNumberUpdate === undefined &&
+                        descriptionUpdate === undefined
                         ? "bg-slate-500 cursor-not-allowed"
                         : "bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600",
                       "rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -330,7 +341,8 @@ const UserProfile = () => {
                           htmlFor="cur_pass"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Current password
+                          Current password{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <div className="relative mt-2">
                           <input
@@ -367,7 +379,7 @@ const UserProfile = () => {
                           htmlFor="new_pass"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          New password
+                          New password <span className="text-red-500">*</span>
                         </label>
                         <div className="relative mt-2">
                           <input
